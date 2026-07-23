@@ -70,7 +70,6 @@ export default function LandingPage() {
             </label>
             <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
               <p className="mb-2 text-sm font-semibold">{t.safetyTitle}</p>
-
               <ul className="space-y-1 text-xs text-muted">
                 {t.safetyTips.map((tip) => (
                   <li key={tip} className="flex gap-2">
