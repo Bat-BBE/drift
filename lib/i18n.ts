@@ -32,8 +32,20 @@ const dict = {
       "Бусдыг хүндэтгэж, соёлтой харилцаарай.",
     ],
 
+    seen: "харсан",
+    icebreaker: "Санамсаргvй асуулт",
+
     notDating:
       "Энэ бол болзооны апп биш. Шинэ хүмүүстэй аюулгүй, энгийн байдлаар харилцах орчин.",
+
+    matchesToday: (n: number) => `Өнөөдөр ${n} хос vvссэн`,
+    howItWorksTitle: "Яаж ажилладаг вэ?",
+    step1Title: "Дар",
+    step1Desc: "Товч дараад л болоо — бvртгvvлэх шаардлагагvй.",
+    step2Title: "Хvлээ",
+    step2Desc: "Хэдхэн секундын дотор тохирох хvн олдоно.",
+    step3Title: "Ярилц",
+    step3Desc: "Чөлөөтэй ярилц, таалагдвал найз бол.",
 
     searching1: "Тохирох хүн хайж байна...",
     searching2: "Түр хүлээнэ үү...",
@@ -126,8 +138,20 @@ const dict = {
       "Be respectful and help keep the community welcoming.",
     ],
 
+    seen: "seen",
+    icebreaker: "Random question",
+
     notDating:
       "This isn't a dating app. It's a place to have safe, anonymous conversations with new people.",
+
+    matchesToday: (n: number) => `${n} matches made today`,
+    howItWorksTitle: "How it works",
+    step1Title: "Tap",
+    step1Desc: "One button — no sign-up needed.",
+    step2Title: "Wait",
+    step2Desc: "A match shows up within seconds.",
+    step3Title: "Talk",
+    step3Desc: "Chat freely — hit it off? Add them as a friend.",
 
     searching1: "Looking for someone...",
     searching2: "Please wait...",

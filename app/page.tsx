@@ -3,19 +3,34 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { LanguageToggle } from "@/components/shared/LanguageToggle";
+import { TopControls } from "@/components/shared/TopControls";
 import { usePresenceCount } from "@/hooks/usePresenceCount";
+import { useMatchesToday } from "@/hooks/useMatchesToday";
 import { useLocale } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 
 export default function LandingPage() {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [showGate, setShowGate] = useState(false);
   const onlineCount = usePresenceCount();
+  const matchesToday = useMatchesToday();
   const { locale, toggleLocale, t } = useLocale();
+  const { theme, toggleTheme } = useTheme();
+
+  const steps = [
+    { icon: "👆", title: t.step1Title, desc: t.step1Desc },
+    { icon: "⏱️", title: t.step2Title, desc: t.step2Desc },
+    { icon: "💬", title: t.step3Title, desc: t.step3Desc },
+  ];
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
-      <LanguageToggle locale={locale} onToggle={toggleLocale} />
+    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 py-16">
+      <TopControls
+        locale={locale}
+        onToggleLocale={toggleLocale}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-brand/25 blur-[90px] animate-float" />
@@ -23,7 +38,7 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-brand-pink/20 blur-[90px] animate-float [animation-delay:4s]" />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-xl flex-col items-center text-center">
+      <div className="relative z-10 flex flex-1 w-full max-w-xl flex-col items-center justify-center text-center">
         <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface1/80 px-3 py-1.5 text-xs text-muted backdrop-blur-xl">
           <span className="h-1.5 w-1.5 rounded-full bg-success" />
           {onlineCount === null
@@ -43,7 +58,7 @@ export default function LandingPage() {
         {!showGate ? (
           <Button
             size="lg"
-            className="mt-10 p-2 w-full max-w-xs bg-gradient-to-r from-brand to-brand-pink hover:brightness-110"
+            className="mt-10 w-full max-w-xs bg-gradient-to-r from-brand to-brand-pink hover:brightness-110"
             onClick={() => setShowGate(true)}
           >
             {t.startChatting} ✦
@@ -77,7 +92,7 @@ export default function LandingPage() {
             >
               <Button
                 size="lg"
-                className="mt-4 w-full p-2"
+                className="mt-4 w-full"
                 disabled={!ageConfirmed}
               >
                 {t.continue}
@@ -86,7 +101,31 @@ export default function LandingPage() {
           </div>
         )}
 
+        {matchesToday !== null && matchesToday > 0 && (
+          <p className="mt-4 text-xs text-muted">
+            🔥 {t.matchesToday(matchesToday)}
+          </p>
+        )}
+
         <p className="mt-6 text-xs text-muted">{t.notDating}</p>
+      </div>
+
+      <div className="relative z-10 mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+        {steps.map((step, i) => (
+          <div
+            key={step.title}
+            className="rounded-lg border border-border bg-surface1/70 p-5 text-center backdrop-blur-xl"
+          >
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand/20 to-brand-pink/20 text-2xl">
+              {step.icon}
+            </div>
+            <p className="text-xs font-mono text-muted">0{i + 1}</p>
+            <h3 className="mt-1 font-display text-base font-semibold">
+              {step.title}
+            </h3>
+            <p className="mt-1 text-sm text-muted">{step.desc}</p>
+          </div>
+        ))}
       </div>
     </main>
   );

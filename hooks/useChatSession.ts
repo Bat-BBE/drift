@@ -8,10 +8,12 @@ import type { Message } from "@/components/chat/ChatBubble";
 export function useChatSession(
   sessionId: string | null,
   userId: string | null,
+  partnerId: string | null,
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
+  const [partnerLastReadAt, setPartnerLastReadAt] = useState(0);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -42,7 +44,7 @@ export function useChatSession(
     init();
 
     const channel = supabase
-      .channel(`session:${sid}`)
+      .channel(`session:${sid}`, { config: { presence: { key: uid } } })
       .on(
         "postgres_changes",
         {
@@ -83,12 +85,28 @@ export function useChatSession(
         },
       )
       .on("broadcast", { event: "typing" }, (payload) => {
-        if (payload.payload.userId === uid) return; // ignore our own broadcast
+        if (payload.payload.userId === uid) return;
         setPartnerTyping(true);
         if (typingTimeout.current) clearTimeout(typingTimeout.current);
         typingTimeout.current = setTimeout(() => setPartnerTyping(false), 2000);
       })
-      .subscribe();
+      .on("broadcast", { event: "read" }, (payload) => {
+        if (payload.payload.userId === uid) return;
+        setPartnerLastReadAt(payload.payload.at);
+      })
+      .on("presence", { event: "leave" }, ({ leftPresences }) => {
+        if (
+          partnerId &&
+          leftPresences.some((p: any) => p.userId === partnerId)
+        ) {
+          setPartnerDisconnected(true);
+        }
+      })
+      .subscribe(async (subStatus) => {
+        if (subStatus === "SUBSCRIBED") {
+          await channel.track({ userId: uid });
+        }
+      });
 
     channelRef.current = channel;
 
@@ -97,7 +115,16 @@ export function useChatSession(
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [sessionId, userId]);
+  }, [sessionId, userId, partnerId]);
+
+  useEffect(() => {
+    if (!channelRef.current || messages.length === 0 || !userId) return;
+    channelRef.current.send({
+      type: "broadcast",
+      event: "read",
+      payload: { userId, at: Date.now() },
+    });
+  }, [messages.length, userId]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -162,10 +189,6 @@ export function useChatSession(
     [sessionId, userId],
   );
 
-  // Actually removes the room. Called once the user moves past the
-  // rate/reported/disconnected screen — not at the moment of leaving,
-  // because the rating still needs to be written against a session that
-  // exists. This is what stops finished rooms from piling up forever.
   const deleteSession = useCallback(async () => {
     if (!sessionId) return;
     await supabase.from("match_sessions").delete().eq("id", sessionId);
@@ -175,6 +198,7 @@ export function useChatSession(
     messages,
     partnerTyping,
     partnerDisconnected,
+    partnerLastReadAt,
     sendMessage,
     notifyTyping,
     leaveSession,

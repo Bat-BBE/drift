@@ -13,10 +13,14 @@ export interface Message {
 export function ChatBubble({
   message,
   showTime,
+  seen,
+  seenLabel,
   avatarId,
 }: {
   message: Message;
   showTime: boolean;
+  seen?: boolean;
+  seenLabel?: string;
   avatarId: string;
 }) {
   const isMe = message.from === "me";
@@ -45,11 +49,14 @@ export function ChatBubble({
           {message.text}
         </div>
         {showTime && (
-          <span className="mt-1 px-1 font-mono text-[11px] text-muted">
+          <span className="mt-1 flex items-center gap-1 px-1 font-mono text-[11px] text-muted">
             {new Date(message.sentAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             })}
+            {seen && seenLabel && (
+              <span className="text-brand-cyan">· {seenLabel} ✓✓</span>
+            )}
           </span>
         )}
       </div>

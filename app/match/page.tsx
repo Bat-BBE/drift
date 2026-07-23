@@ -7,15 +7,18 @@ import { SearchingAnimation } from "@/components/match/SearchingAnimation";
 import { MatchFoundBurst } from "@/components/match/MatchFoundBurst";
 import { RateSheet } from "@/components/match/RateSheet";
 import { ReportSheet } from "@/components/match/ReportSheet";
-import { LanguageToggle } from "@/components/shared/LanguageToggle";
+import { TopControls } from "@/components/shared/TopControls";
 import { ChatBubble } from "@/components/chat/ChatBubble";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
+import { Avatar } from "@/components/shared/Avatar";
+import { getAvatar } from "@/lib/avatars";
 import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
 import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { useChatSession } from "@/hooks/useChatSession";
 import { useLocale } from "@/lib/i18n";
-import { Avatar } from "@/components/shared/Avatar";
-import { getAvatar } from "@/lib/avatars";
+import { useTheme } from "@/lib/theme";
+import { randomIcebreaker } from "@/lib/icebreakers";
+import { QUICK_REACTIONS } from "@/lib/quickReactions";
 
 type Phase =
   | "searching"
@@ -29,6 +32,7 @@ type Phase =
 export default function MatchPage() {
   const router = useRouter();
   const { locale, toggleLocale, t } = useLocale();
+  const { theme, toggleTheme } = useTheme();
   const { userId, ready } = useAnonymousAuth();
   const { status, session, startSearch, cancelSearch, resetSession } =
     useMatchmaking(userId);
@@ -36,13 +40,14 @@ export default function MatchPage() {
     messages,
     partnerTyping,
     partnerDisconnected,
+    partnerLastReadAt,
     sendMessage,
     notifyTyping,
     leaveSession,
     reportSession,
     rateSession,
     deleteSession,
-  } = useChatSession(session?.id ?? null, userId);
+  } = useChatSession(session?.id ?? null, userId, session?.partnerId ?? null);
 
   const [phase, setPhase] = useState<Phase>("searching");
   const [draft, setDraft] = useState("");
@@ -155,8 +160,12 @@ export default function MatchPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
-      <LanguageToggle locale={locale} onToggle={toggleLocale} />
-
+      <TopControls
+        locale={locale}
+        onToggleLocale={toggleLocale}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
       {phase === "searching" && (
         <div className="flex flex-col items-center">
           <SearchingAnimation messages={searchingMessages} />
@@ -224,12 +233,33 @@ export default function MatchPage() {
                 key={m.id}
                 message={m}
                 showTime={i === messages.length - 1}
+                seen={m.from === "me" && partnerLastReadAt >= m.sentAt}
+                seenLabel={t.seen}
                 avatarId={
                   m.from === "me" ? (userId ?? "me") : session.partnerId
                 }
               />
             ))}
             {partnerTyping && <TypingIndicator />}
+          </div>
+
+          <div className="flex items-center gap-1 px-3 pt-2">
+            {QUICK_REACTIONS.map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => sendMessage(emoji)}
+                className="rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
+              >
+                {emoji}
+              </button>
+            ))}
+            <button
+              onClick={() => sendMessage(randomIcebreaker())}
+              title={t.icebreaker}
+              className="ml-auto rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted transition-colors hover:text-foreground"
+            >
+              🎲 {t.icebreaker}
+            </button>
           </div>
 
           <div className="flex items-center gap-2 border-t border-border p-3">
