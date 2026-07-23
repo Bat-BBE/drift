@@ -17,12 +17,6 @@ export default function LandingPage() {
   const { locale, toggleLocale, t } = useLocale();
   const { theme, toggleTheme } = useTheme();
 
-  const steps = [
-    { icon: "👆", title: t.step1Title, desc: t.step1Desc },
-    { icon: "⏱️", title: t.step2Title, desc: t.step2Desc },
-    { icon: "💬", title: t.step3Title, desc: t.step3Desc },
-  ];
-
   return (
     <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-6 py-16">
       <TopControls
@@ -58,7 +52,7 @@ export default function LandingPage() {
         {!showGate ? (
           <Button
             size="lg"
-            className="mt-10 w-full max-w-xs bg-gradient-to-r from-brand to-brand-pink hover:brightness-110"
+            className="mt-10 p-2 w-full max-w-xs bg-gradient-to-r from-brand to-brand-pink hover:brightness-110"
             onClick={() => setShowGate(true)}
           >
             {t.startChatting} ✦
@@ -92,7 +86,7 @@ export default function LandingPage() {
             >
               <Button
                 size="lg"
-                className="mt-4 w-full"
+                className="mt-4 p-2 w-full"
                 disabled={!ageConfirmed}
               >
                 {t.continue}
@@ -106,26 +100,7 @@ export default function LandingPage() {
             🔥 {t.matchesToday(matchesToday)}
           </p>
         )}
-
         <p className="mt-6 text-xs text-muted">{t.notDating}</p>
-      </div>
-
-      <div className="relative z-10 mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
-        {steps.map((step, i) => (
-          <div
-            key={step.title}
-            className="rounded-lg border border-border bg-surface1/70 p-5 text-center backdrop-blur-xl"
-          >
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand/20 to-brand-pink/20 text-2xl">
-              {step.icon}
-            </div>
-            <p className="text-xs font-mono text-muted">0{i + 1}</p>
-            <h3 className="mt-1 font-display text-base font-semibold">
-              {step.title}
-            </h3>
-            <p className="mt-1 text-sm text-muted">{step.desc}</p>
-          </div>
-        ))}
       </div>
     </main>
   );
