@@ -3,11 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 
-/**
- * Tracks how many browser tabs are currently subscribed to the shared
- * "lobby" presence channel. Purely a vibe metric for the landing page —
- * not used for anything functional.
- */
 export function usePresenceCount() {
   const [count, setCount] = useState<number | null>(null);
 

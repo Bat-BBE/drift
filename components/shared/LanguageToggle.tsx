@@ -16,7 +16,7 @@ export function LanguageToggle({
       aria-label="Switch language"
     >
       <span className={locale === "mn" ? "text-success" : ""}>MN</span>
-      <span className="opacity-30 text-warning">/</span>
+      <span className="opacity-30 ">/</span>
       <span className={locale === "en" ? "text-success" : ""}>EN</span>
     </button>
   );

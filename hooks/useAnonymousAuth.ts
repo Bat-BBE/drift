@@ -3,11 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 
-/**
- * Ensures every visitor has an anonymous Supabase auth session before they
- * can join the match queue or send messages (required for RLS policies,
- * which key everything off `auth.uid()`).
- */
 export function useAnonymousAuth() {
   const [userId, setUserId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
@@ -26,7 +21,8 @@ export function useAnonymousAuth() {
         return;
       }
 
-      const { data: signInData, error } = await supabase.auth.signInAnonymously();
+      const { data: signInData, error } =
+        await supabase.auth.signInAnonymously();
       if (error) {
         console.error("[drift] anonymous sign-in failed:", error.message);
         return;

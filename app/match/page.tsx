@@ -14,6 +14,8 @@ import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
 import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { useChatSession } from "@/hooks/useChatSession";
 import { useLocale } from "@/lib/i18n";
+import { Avatar } from "@/components/shared/Avatar";
+import { getAvatar } from "@/lib/avatars";
 
 type Phase =
   | "searching"
@@ -39,6 +41,7 @@ export default function MatchPage() {
     leaveSession,
     reportSession,
     rateSession,
+    deleteSession,
   } = useChatSession(session?.id ?? null, userId);
 
   const [phase, setPhase] = useState<Phase>("searching");
@@ -72,7 +75,6 @@ export default function MatchPage() {
     if (status === "matched" && phase === "searching") {
       setPhase("matched");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   useEffect(() => {
@@ -87,7 +89,6 @@ export default function MatchPage() {
     }
   }, [partnerDisconnected, phase]);
 
-  // 20 sec: no one found -> "no one online" state + clean up the queue row
   useEffect(() => {
     if (phase !== "searching") return;
     const noMatchTimer = setTimeout(async () => {
@@ -105,7 +106,6 @@ export default function MatchPage() {
       handleNextMatch();
     }, 30000);
     return () => clearTimeout(idleTimer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, messages]);
 
   async function handleCancelSearch() {
@@ -136,7 +136,8 @@ export default function MatchPage() {
     await rateSession(value, session.partnerId);
   }
 
-  function handleNextMatch() {
+  async function handleNextMatch() {
+    await deleteSession();
     resetSession();
     hasStarted.current = false;
     setPhase("searching");
@@ -169,7 +170,11 @@ export default function MatchPage() {
       )}
 
       {phase === "matched" && session && (
-        <MatchFoundBurst sharedTags={session.sharedTags} label={t.matchFound} />
+        <MatchFoundBurst
+          partnerId={session.partnerId}
+          sharedTags={session.sharedTags}
+          label={t.matchFound}
+        />
       )}
 
       {phase === "noMatch" && (
@@ -180,7 +185,7 @@ export default function MatchPage() {
           <p className="mt-1 text-sm text-muted">{t.noMatchSubtitle}</p>
           <Button
             size="lg"
-            className="mt-6 w-full bg-gradient-to-r from-brand to-brand-pink"
+            className="mt-6 p-2 w-full bg-gradient-to-r from-brand to-brand-pink"
             onClick={handleNextMatch}
           >
             {t.tryAgain}
@@ -192,10 +197,13 @@ export default function MatchPage() {
         <div className="flex h-[85vh] w-full max-w-lg flex-col rounded-lg border border-border bg-surface1 shadow-[0_8px_40px_rgba(124,92,255,0.08)]">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-pink">
+              <span className="relative">
+                <Avatar id={session.partnerId} size={36} />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface1 bg-success" />
               </span>
-              <span className="text-sm font-medium">{t.stranger}</span>
+              <span className="text-sm font-medium">
+                {getAvatar(session.partnerId).name}
+              </span>
             </div>
             <button
               onClick={() => setShowReport(true)}
@@ -216,6 +224,9 @@ export default function MatchPage() {
                 key={m.id}
                 message={m}
                 showTime={i === messages.length - 1}
+                avatarId={
+                  m.from === "me" ? (userId ?? "me") : session.partnerId
+                }
               />
             ))}
             {partnerTyping && <TypingIndicator />}

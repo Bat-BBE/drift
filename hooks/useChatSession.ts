@@ -102,11 +102,13 @@ export function useChatSession(
   const sendMessage = useCallback(
     async (content: string) => {
       if (!sessionId || !userId || !content.trim()) return;
-      const { error } = await supabase.from("messages").insert({
-        session_id: sessionId,
-        sender_id: userId,
-        content: content.trim(),
-      });
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          session_id: sessionId,
+          sender_id: userId,
+          content: content.trim(),
+        });
       if (error)
         console.error("[drift] failed to send message:", error.message);
     },
@@ -160,6 +162,10 @@ export function useChatSession(
     [sessionId, userId],
   );
 
+  // Actually removes the room. Called once the user moves past the
+  // rate/reported/disconnected screen — not at the moment of leaving,
+  // because the rating still needs to be written against a session that
+  // exists. This is what stops finished rooms from piling up forever.
   const deleteSession = useCallback(async () => {
     if (!sessionId) return;
     await supabase.from("match_sessions").delete().eq("id", sessionId);

@@ -10,14 +10,10 @@ export interface MatchedSession {
   sharedTags: string[];
 }
 
-/**
- * Joins the match_queue and listens for a match_sessions row to appear
- * where the current user is either participant. Pairing itself happens
- * server-side in the `attempt_match()` Postgres trigger (see
- * supabase/migrations/0001_init.sql) — this hook only queues and listens.
- */
 export function useMatchmaking(userId: string | null) {
-  const [status, setStatus] = useState<"idle" | "searching" | "matched">("idle");
+  const [status, setStatus] = useState<"idle" | "searching" | "matched">(
+    "idle",
+  );
   const [session, setSession] = useState<MatchedSession | null>(null);
   const channelsRef = useRef<RealtimeChannel[]>([]);
 
@@ -31,11 +27,12 @@ export function useMatchmaking(userId: string | null) {
       if (!userId) return;
       setStatus("searching");
       setSession(null);
-
-      // A user can only have one queue entry — upsert replaces any stale one.
       const { error } = await supabase
         .from("match_queue")
-        .upsert({ user_id: userId, interest_tags: interestTags }, { onConflict: "user_id" });
+        .upsert(
+          { user_id: userId, interest_tags: interestTags },
+          { onConflict: "user_id" },
+        );
 
       if (error) {
         console.error("[drift] failed to join queue:", error.message);
@@ -43,14 +40,17 @@ export function useMatchmaking(userId: string | null) {
         return;
       }
 
-      // Two separate subscriptions because Realtime's postgres_changes
-      // filter only supports a single equality check, not an OR.
       const asA = supabase
         .channel(`match-as-a-${userId}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "match_sessions", filter: `user_a_id=eq.${userId}` },
-          (payload) => handleMatch(payload.new as any, userId)
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "match_sessions",
+            filter: `user_a_id=eq.${userId}`,
+          },
+          (payload) => handleMatch(payload.new as any, userId),
         )
         .subscribe();
 
@@ -58,15 +58,17 @@ export function useMatchmaking(userId: string | null) {
         .channel(`match-as-b-${userId}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "match_sessions", filter: `user_b_id=eq.${userId}` },
-          (payload) => handleMatch(payload.new as any, userId)
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "match_sessions",
+            filter: `user_b_id=eq.${userId}`,
+          },
+          (payload) => handleMatch(payload.new as any, userId),
         )
         .subscribe();
 
       channelsRef.current = [asA, asB];
-
-      // Also cover the case where a match was already created between the
-      // upsert call and the subscriptions going live (race on slow networks).
       const { data: existing } = await supabase
         .from("match_sessions")
         .select("*")
@@ -78,12 +80,16 @@ export function useMatchmaking(userId: string | null) {
 
       if (existing) handleMatch(existing as any, userId);
     },
-    [userId]
+    [userId],
   );
 
   function handleMatch(row: any, uid: string) {
     const partnerId = row.user_a_id === uid ? row.user_b_id : row.user_a_id;
-    setSession({ id: row.id, partnerId, sharedTags: row.shared_interest_tags ?? [] });
+    setSession({
+      id: row.id,
+      partnerId,
+      sharedTags: row.shared_interest_tags ?? [],
+    });
     setStatus("matched");
     cleanupChannels();
   }
@@ -97,5 +103,11 @@ export function useMatchmaking(userId: string | null) {
 
   useEffect(() => () => cleanupChannels(), [cleanupChannels]);
 
-  return { status, session, startSearch, cancelSearch, resetSession: () => setSession(null) };
+  return {
+    status,
+    session,
+    startSearch,
+    cancelSearch,
+    resetSession: () => setSession(null),
+  };
 }

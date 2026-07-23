@@ -61,6 +61,16 @@ const config: Config = {
           "0%, 100%": { transform: "translate(0, 0) scale(1)" },
           "50%": { transform: "translate(20px, -30px) scale(1.08)" },
         },
+        breathe: {
+          "0%, 100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 rgba(124,92,255,0.35)",
+          },
+          "50%": {
+            transform: "scale(1.08)",
+            boxShadow: "0 0 34px 8px rgba(124,92,255,0.28)",
+          },
+        },
       },
       animation: {
         "pulse-ring": "pulse-ring 1.4s ease-in-out infinite",
@@ -68,6 +78,7 @@ const config: Config = {
         "match-burst": "match-burst 280ms cubic-bezier(0.16,1,0.3,1)",
         "dot-pulse": "dot-pulse 1.2s ease-in-out infinite",
         float: "float 8s ease-in-out infinite",
+        breathe: "breathe 2.4s ease-in-out infinite",
       },
     },
   },
