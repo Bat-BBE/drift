@@ -15,7 +15,8 @@ const base =
 const variants = {
   primary:
     "bg-brand text-white hover:brightness-110 shadow-[0_1px_2px_rgba(0,0,0,0.2)]",
-  secondary: "bg-surface2 text-foreground hover:bg-surface1 border border-border",
+  secondary:
+    "bg-surface2 text-foreground hover:bg-surface1 border border-border",
   ghost: "bg-transparent text-foreground hover:bg-surface2",
   danger: "bg-danger/10 text-danger hover:bg-danger/20",
 };
@@ -26,7 +27,17 @@ const sizes = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      loading,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <button
         ref={ref}
@@ -41,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

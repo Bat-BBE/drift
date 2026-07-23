@@ -11,17 +11,26 @@ const dict = {
     onlineConnecting: "Онлайн хэрэглэгчдийн тоог ачааллаж байна...",
     onlineCount: (n: number) => `Одоо ${n} хүн онлайн байна`,
 
-    heroLine1: "Танихгүй хүнтэй",
-    heroLine2: "шууд ярилцаарай.",
+    heroLine1: "Шинэ чат.",
+    heroLine2: "Шинэ яриа.",
 
     heroSubtitle:
-      "100% нэрээ нууцалсан. Бүртгүүлэх шаардлагагүй. Зүгээр л шинэ хүнтэй ярилц.",
+      "100% нэрээ нууцалсан. Бүртгэлгүй. Шинэ хүнтэй чөлөөтэй ярилц.",
 
     startChatting: "Чат эхлүүлэх",
 
     ageConfirm: "Би 18 ба түүнээс дээш настай.",
 
     continue: "Үргэлжлүүлэх",
+
+    safetyTitle: "Аюулгүй байдлын зөвлөмж",
+
+    safetyTips: [
+      "Өөрийн овог нэр, утасны дугаар, хаяг зэрэг хувийн мэдээллээ бүү хуваалцаарай.",
+      "Хэрэв яриа танд тухгүй санагдвал хүссэн үедээ чатаас гарч болно.",
+      "Зохисгүй эсвэл сэжигтэй хэрэглэгчийг мэдээлээрэй.",
+      "Бусдыг хүндэтгэж, соёлтой харилцаарай.",
+    ],
 
     notDating:
       "Энэ бол болзооны апп биш. Шинэ хүмүүстэй аюулгүй, энгийн байдлаар ярилцах орчин.",
@@ -96,17 +105,26 @@ const dict = {
     onlineConnecting: "Loading online users...",
     onlineCount: (n: number) => `${n} people online`,
 
-    heroLine1: "Meet someone new,",
-    heroLine2: "start talking instantly.",
+    heroLine1: "New chat.",
+    heroLine2: "New conversation.",
 
     heroSubtitle:
-      "100% anonymous. No sign-up required. Just genuine conversations.",
+      "100% anonymous. No sign-up required. Start a conversation with someone new.",
 
     startChatting: "Start chatting",
 
     ageConfirm: "I confirm that I am 18 years or older.",
 
     continue: "Continue",
+
+    safetyTitle: "Stay safe",
+
+    safetyTips: [
+      "Never share personal information like your phone number, address, or passwords.",
+      "Leave the chat anytime if you feel uncomfortable.",
+      "Report users who behave inappropriately or make you feel unsafe.",
+      "Be respectful and help keep the community welcoming.",
+    ],
 
     notDating:
       "This isn't a dating app. It's a place to have safe, anonymous conversations with new people.",
