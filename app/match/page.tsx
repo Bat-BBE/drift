@@ -19,6 +19,9 @@ import { useLocale } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import { randomIcebreaker } from "@/lib/icebreakers";
 import { QUICK_REACTIONS } from "@/lib/quickReactions";
+import { ZodiacPicker } from "@/components/match/ZodiacPicker";
+import { ZodiacMatchCard } from "@/components/match/ZodiacMatchCard";
+import { ZODIAC_MARKER } from "@/lib/zodiac";
 
 type Phase =
   | "searching"
@@ -52,6 +55,7 @@ export default function MatchPage() {
   const [phase, setPhase] = useState<Phase>("searching");
   const [draft, setDraft] = useState("");
   const [showReport, setShowReport] = useState(false);
+  const [showZodiacPicker, setShowZodiacPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
 
@@ -61,6 +65,17 @@ export default function MatchPage() {
     t.searching3,
     t.searching4,
   ];
+
+  const myZodiac = messages
+    .find((m) => m.from === "me" && m.text.startsWith(ZODIAC_MARKER))
+    ?.text.slice(ZODIAC_MARKER.length);
+  const partnerZodiac = messages
+    .find((m) => m.from === "stranger" && m.text.startsWith(ZODIAC_MARKER))
+    ?.text.slice(ZODIAC_MARKER.length);
+  // const compatibility =
+  //   myZodiac && partnerZodiac
+  //     ? getCompatibility(myZodiac, partnerZodiac)
+  //     : null;
 
   useEffect(() => {
     if (ready && userId && !hasStarted.current) {
@@ -169,6 +184,7 @@ export default function MatchPage() {
       {phase === "searching" && (
         <div className="flex flex-col items-center">
           <SearchingAnimation messages={searchingMessages} />
+
           <button
             onClick={handleCancelSearch}
             className="text-sm text-muted hover:text-foreground"
@@ -202,7 +218,7 @@ export default function MatchPage() {
         </div>
       )}
 
-      {phase === "chat" && session && !showReport && (
+      {phase === "chat" && session && !showReport && !showZodiacPicker && (
         <div className="flex h-[85vh] w-full max-w-lg flex-col rounded-lg border border-border bg-surface1 shadow-[0_8px_40px_rgba(124,92,255,0.08)]">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2.5">
@@ -222,6 +238,10 @@ export default function MatchPage() {
               ⚑
             </button>
           </div>
+
+          {myZodiac && partnerZodiac && (
+            <ZodiacMatchCard mySign={myZodiac} partnerSign={partnerZodiac} />
+          )}
 
           <div
             ref={scrollRef}
@@ -254,6 +274,13 @@ export default function MatchPage() {
               </button>
             ))}
             <button
+              onClick={() => setShowZodiacPicker(true)}
+              title={t.zodiacButton}
+              className="rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted transition-colors hover:text-foreground"
+            >
+              🔮 {t.zodiacButton}
+            </button>
+            <button
               onClick={() => sendMessage(randomIcebreaker())}
               title={t.icebreaker}
               className="ml-auto rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted transition-colors hover:text-foreground"
@@ -284,6 +311,18 @@ export default function MatchPage() {
             </Button>
           </div>
         </div>
+      )}
+
+      {phase === "chat" && showZodiacPicker && (
+        <ZodiacPicker
+          onPick={(name) => {
+            sendMessage(`${ZODIAC_MARKER}${name}`);
+            setShowZodiacPicker(false);
+          }}
+          onCancel={() => setShowZodiacPicker(false)}
+          title={t.zodiacTitle}
+          cancelLabel={t.cancel}
+        />
       )}
 
       {phase === "chat" && showReport && (

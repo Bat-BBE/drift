@@ -35,6 +35,10 @@ const dict = {
     seen: "харсан",
     icebreaker: "Санамсаргvй асуулт",
 
+    zodiacButton: "Ордоо тааруулъя",
+    zodiacTitle: "Ямар ордтой вэ?",
+    zodiacPicked: "сонголоо:",
+
     notDating:
       "Энэ бол болзооны апп биш. Шинэ хүмүүстэй аюулгүй, энгийн байдлаар харилцах орчин.",
 
@@ -141,6 +145,9 @@ const dict = {
     seen: "seen",
     icebreaker: "Random question",
 
+    zodiacButton: "Match zodiacs",
+    zodiacTitle: "What's your sign?",
+    zodiacPicked: "picked:",
     notDating:
       "This isn't a dating app. It's a place to have safe, anonymous conversations with new people.",
 
