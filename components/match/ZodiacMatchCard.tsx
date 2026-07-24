@@ -42,14 +42,14 @@ export function ZodiacMatchCard({
       icon: me.nightOwl ? "🌙" : "☀️",
       label: "Идэвхтэй цаг",
       me: me.nightOwl
-        ? "Шөнийн хvн"
+        ? "Шөнийн хүн"
         : me.morningPerson
-          ? "Өглөөний хvн"
+          ? "Өглөөний хүн"
           : "Дунд зэрэг",
       partner: partner.nightOwl
-        ? "Шөнийн хvн"
+        ? "Шөнийн хүн"
         : partner.morningPerson
-          ? "Өглөөний хvн"
+          ? "Өглөөний хүн"
           : "Дунд зэрэг",
     },
     { icon: "👻", label: "Red flag", me: me.redFlag, partner: partner.redFlag },
@@ -107,7 +107,7 @@ export function ZodiacMatchCard({
         onClick={() => setExpanded((v) => !v)}
         className="mx-auto mt-2 block text-xs text-muted underline underline-offset-2 hover:text-foreground"
       >
-        {expanded ? "Хураах" : "Дэлгэрэнгvй харах"}
+        {expanded ? "Хураах" : "Дэлгэрэнгүй харах"}
       </button>
 
       {expanded && (
@@ -117,7 +117,7 @@ export function ZodiacMatchCard({
               Чи ({me.emoji} {me.name})
             </span>
             <span>
-              Тэр хvн ({partner.emoji} {partner.name})
+              Тэр хүн ({partner.emoji} {partner.name})
             </span>
           </div>
 

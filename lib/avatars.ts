@@ -1,5 +1,5 @@
 const AVATARS = [
-  { emoji: "🦊", name: "Vнэг", from: "#7c5cff", to: "#4cc9f0" },
+  { emoji: "🦊", name: "Үнэг", from: "#7c5cff", to: "#4cc9f0" },
   { emoji: "🐼", name: "Панда", from: "#ff5ca8", to: "#7c5cff" },
   { emoji: "🐨", name: "Коала", from: "#4cc9f0", to: "#34d399" },
   { emoji: "🦁", name: "Арслан", from: "#fbbf24", to: "#ff5ca8" },
