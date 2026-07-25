@@ -32,6 +32,41 @@ type Phase =
   | "rate"
   | "noMatch";
 
+/**
+ * Mobile browser дээр keyboard нээгдэхэд `100dvh` найдвартай шинэчлэгддэггүй
+ * тул visualViewport-ийг ашиглан бодит харагдах өндрийг тооцоолно.
+ * Зөвхөн mobile (<640px) дээр идэвхжинэ, desktop дээр CSS-д даатгана.
+ */
+function useKeyboardSafeHeight(active: boolean) {
+  const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!active || typeof window === "undefined") return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    function update() {
+      if (window.innerWidth < 640) {
+        setHeight(vv!.height);
+      } else {
+        setHeight(null);
+      }
+    }
+
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [active]);
+
+  return height;
+}
+
 export default function MatchPage() {
   const router = useRouter();
   const { locale, toggleLocale, t } = useLocale();
@@ -76,6 +111,9 @@ export default function MatchPage() {
   //   myZodiac && partnerZodiac
   //     ? getCompatibility(myZodiac, partnerZodiac)
   //     : null;
+
+  const isChatFullBleed = phase === "chat";
+  const keyboardSafeHeight = useKeyboardSafeHeight(isChatFullBleed);
 
   useEffect(() => {
     if (ready && userId && !hasStarted.current) {
@@ -128,6 +166,21 @@ export default function MatchPage() {
     return () => clearTimeout(idleTimer);
   }, [phase, messages]);
 
+  // Chat нээлттэй үед body-г түгжиж, keyboard гарахад ард нь
+  // хуудас хажуугаар гулсаж (bounce) харагдахаас сэргийлнэ.
+  useEffect(() => {
+    if (isChatFullBleed) {
+      const originalOverflow = document.body.style.overflow;
+      const originalOverscroll = document.body.style.overscrollBehavior;
+      document.body.style.overflow = "hidden";
+      document.body.style.overscrollBehavior = "none";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.overscrollBehavior = originalOverscroll;
+      };
+    }
+  }, [isChatFullBleed]);
+
   async function handleCancelSearch() {
     await cancelSearch();
     router.push("/");
@@ -172,8 +225,6 @@ export default function MatchPage() {
       </main>
     );
   }
-
-  const isChatFullBleed = phase === "chat";
 
   return (
     <main
@@ -236,7 +287,12 @@ export default function MatchPage() {
       )}
 
       {phase === "chat" && session && !showReport && !showZodiacPicker && (
-        <div className="flex h-[100dvh] w-full flex-col border-border bg-surface1 sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]">
+        <div
+          className="flex w-full flex-col border-border bg-surface1 sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]"
+          style={{
+            height: keyboardSafeHeight ? `${keyboardSafeHeight}px` : "100dvh",
+          }}
+        >
           <div className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
@@ -262,7 +318,7 @@ export default function MatchPage() {
 
           <div
             ref={scrollRef}
-            className="flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4"
+            className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-4"
             role="log"
           >
             {messages.map((m, i) => (
@@ -320,7 +376,10 @@ export default function MatchPage() {
               }}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder={t.typeMessage}
-              className="h-11 min-w-0 flex-1 rounded-sm border border-border bg-surface2 px-3 text-[15px] outline-none focus-visible:outline-2 focus-visible:outline-brand sm:px-4"
+              enterKeyHint="send"
+              autoComplete="off"
+              autoCorrect="off"
+              className="h-11 min-w-0 flex-1 rounded-sm border border-border bg-surface2 px-3 text-base outline-none focus-visible:outline-2 focus-visible:outline-brand sm:px-4 sm:text-[15px]"
             />
             <Button
               onClick={handleSend}
