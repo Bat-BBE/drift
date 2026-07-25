@@ -96,6 +96,7 @@ export default function MatchPage() {
   const [draft, setDraft] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [showZodiacPicker, setShowZodiacPicker] = useState(false);
+  const [showZodiacCard, setShowZodiacCard] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
 
@@ -320,8 +321,12 @@ export default function MatchPage() {
             </button>
           </div>
 
-          {myZodiac && partnerZodiac && (
-            <ZodiacMatchCard mySign={myZodiac} partnerSign={partnerZodiac} />
+          {myZodiac && partnerZodiac && showZodiacCard && (
+            <ZodiacMatchCard
+              mySign={myZodiac}
+              partnerSign={partnerZodiac}
+              onClose={() => setShowZodiacCard(false)}
+            />
           )}
 
           <div
