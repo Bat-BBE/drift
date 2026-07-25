@@ -1,1 +1,18 @@
-export const QUICK_REACTIONS = ["👍", "❤️", "😂", "😮", "😢", "🔥"] as const;
+export const QUICK_REACTIONS = [
+  "👍",
+  "❤️",
+  "😂",
+  "🔥",
+  "😍",
+  "😮",
+  "😢",
+  "👏",
+  "🎉",
+  "🤔",
+  "🙏",
+  "🥰",
+  "🤣",
+  "💯",
+  "🚀",
+  "🫶",
+] as const;
