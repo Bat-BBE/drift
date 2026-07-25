@@ -157,12 +157,13 @@ export default function MatchPage() {
     return () => clearTimeout(noMatchTimer);
   }, [phase, cancelSearch]);
 
+  const IDLE_TIMEOUT_MS = 180_000;
   useEffect(() => {
     if (phase !== "chat") return;
     const idleTimer = setTimeout(async () => {
       await leaveSession();
       handleNextMatch();
-    }, 30000);
+    }, IDLE_TIMEOUT_MS);
     return () => clearTimeout(idleTimer);
   }, [phase, messages]);
 
@@ -465,7 +466,7 @@ export default function MatchPage() {
           <p className="mt-1 text-sm text-muted">{t.disconnectedSubtitle}</p>
           <Button
             size="lg"
-            className="mt-6 w-full"
+            className="mt-6 p-2 w-full"
             onClick={() => setPhase("rate")}
           >
             {t.continue}

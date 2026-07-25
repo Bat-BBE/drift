@@ -83,7 +83,7 @@ export function ZodiacMatchCard({
   ];
 
   return (
-    <div className="border-b border-border bg-surface2/60 px-3 py-3 sm:px-4">
+    <div className="shrink-0 border-b border-border bg-surface2/60 px-3 py-3 sm:px-4">
       {combo && (
         <div className="text-center">
           <p className="break-words text-sm font-semibold">
@@ -113,8 +113,8 @@ export function ZodiacMatchCard({
       </button>
 
       {expanded && (
-        <div className="mt-3 space-y-2">
-          <div className="flex items-center justify-between gap-2 px-1 text-[11px] font-medium text-muted">
+        <div className="mt-3 max-h-[45vh] space-y-2 overflow-y-auto overscroll-contain pr-0.5 sm:max-h-[50vh]">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-surface2/95 px-1 py-1 text-[11px] font-medium text-muted backdrop-blur-sm">
             <span className="min-w-0 truncate">
               Чи ({me.emoji} {me.name})
             </span>
