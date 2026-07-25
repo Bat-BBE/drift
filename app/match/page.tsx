@@ -33,9 +33,9 @@ type Phase =
   | "noMatch";
 
 /**
- * Mobile browser дээр keyboard нээгдэхэд `100dvh` найдвартай шинэчлэгддэггүй
- * тул visualViewport-ийг ашиглан бодит харагдах өндрийг тооцоолно.
- * Зөвхөн mobile (<640px) дээр идэвхжинэ, desktop дээр CSS-д даатгана.
+ * Mobile дээр keyboard нээгдэхэд visualViewport-ийн бодит өндрийг
+ * тооцоолно. Зөвхөн <640px дээр идэвхжинэ, desktop дээр `null`
+ * буцааж CSS class-даа бүрэн даатгана (inline style-аар override хийхгүй).
  */
 function useKeyboardSafeHeight(active: boolean) {
   const [height, setHeight] = useState<number | null>(null);
@@ -127,7 +127,7 @@ export default function MatchPage() {
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, partnerTyping]);
+  }, [messages, partnerTyping, keyboardSafeHeight]);
 
   useEffect(() => {
     if (status === "matched" && phase === "searching") {
@@ -172,11 +172,16 @@ export default function MatchPage() {
     if (isChatFullBleed) {
       const originalOverflow = document.body.style.overflow;
       const originalOverscroll = document.body.style.overscrollBehavior;
+      const originalPosition = document.body.style.position;
       document.body.style.overflow = "hidden";
       document.body.style.overscrollBehavior = "none";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
       return () => {
         document.body.style.overflow = originalOverflow;
         document.body.style.overscrollBehavior = originalOverscroll;
+        document.body.style.position = originalPosition;
+        document.body.style.width = "";
       };
     }
   }, [isChatFullBleed]);
@@ -288,10 +293,12 @@ export default function MatchPage() {
 
       {phase === "chat" && session && !showReport && !showZodiacPicker && (
         <div
-          className="flex w-full flex-col border-border bg-surface1 sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]"
-          style={{
-            height: keyboardSafeHeight ? `${keyboardSafeHeight}px` : "100dvh",
-          }}
+          className="fixed inset-x-0 top-0 z-10 flex h-[100dvh] w-full flex-col border-border bg-surface1 sm:static sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]"
+          style={
+            keyboardSafeHeight
+              ? { height: `${keyboardSafeHeight}px` }
+              : undefined
+          }
         >
           <div className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
