@@ -83,13 +83,15 @@ export function ZodiacMatchCard({
   ];
 
   return (
-    <div className="border-b border-border bg-surface2/60 px-4 py-3">
+    <div className="border-b border-border bg-surface2/60 px-3 py-3 sm:px-4">
       {combo && (
         <div className="text-center">
-          <p className="text-sm font-semibold">
+          <p className="break-words text-sm font-semibold">
             {me.emoji} {partner.emoji} {combo.title}
           </p>
-          <p className="mt-0.5 text-xs text-muted">{combo.message}</p>
+          <p className="mx-auto mt-0.5 max-w-[90%] break-words text-xs text-muted sm:max-w-none">
+            {combo.message}
+          </p>
           <div className="mt-1 flex justify-center gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
               <span
@@ -105,18 +107,18 @@ export function ZodiacMatchCard({
 
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="mx-auto mt-2 block text-xs text-muted underline underline-offset-2 hover:text-foreground"
+        className="mx-auto mt-2 block px-2 py-1 text-xs text-muted underline underline-offset-2 hover:text-foreground active:opacity-70"
       >
         {expanded ? "Хураах" : "Дэлгэрэнгүй харах"}
       </button>
 
       {expanded && (
         <div className="mt-3 space-y-2">
-          <div className="flex justify-between px-1 text-[11px] font-medium text-muted">
-            <span>
+          <div className="flex items-center justify-between gap-2 px-1 text-[11px] font-medium text-muted">
+            <span className="min-w-0 truncate">
               Чи ({me.emoji} {me.name})
             </span>
-            <span>
+            <span className="min-w-0 truncate text-right">
               Тэр хүн ({partner.emoji} {partner.name})
             </span>
           </div>
@@ -129,9 +131,12 @@ export function ZodiacMatchCard({
               <p className="text-[11px] text-muted">
                 {r.icon} {r.label}
               </p>
-              <div className="mt-1 flex gap-2 text-xs">
-                <span className="flex-1">{r.me}</span>
-                <span className="flex-1 text-right">{r.partner}</span>
+              <div className="mt-1 flex flex-col gap-1 text-xs sm:flex-row sm:gap-2">
+                <span className="min-w-0 flex-1 break-words">{r.me}</span>
+                <span className="hidden shrink-0 text-muted sm:block">·</span>
+                <span className="min-w-0 flex-1 break-words sm:text-right">
+                  {r.partner}
+                </span>
               </div>
             </div>
           ))}
@@ -140,12 +145,12 @@ export function ZodiacMatchCard({
             {scoreRows.map((s) => (
               <div
                 key={s.label}
-                className="flex items-center justify-between text-xs"
+                className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs"
               >
-                <span className="text-muted">
+                <span className="min-w-0 break-words text-muted">
                   {s.icon} {s.label}
                 </span>
-                <span>
+                <span className="shrink-0 whitespace-nowrap">
                   {s.me}/5 · {s.partner}/5
                 </span>
               </div>

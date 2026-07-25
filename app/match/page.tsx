@@ -167,27 +167,44 @@ export default function MatchPage() {
 
   if (!ready) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background">
+      <main className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
         <p className="text-sm text-muted">{t.connecting}</p>
       </main>
     );
   }
 
+  const isChatFullBleed = phase === "chat";
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
-      <TopControls
-        locale={locale}
-        onToggleLocale={toggleLocale}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+    <main
+      className={`flex min-h-[100dvh] flex-col items-center bg-background ${
+        isChatFullBleed
+          ? "justify-start px-0 py-0 sm:justify-center sm:px-4 sm:py-8"
+          : "justify-center px-4 py-8"
+      }`}
+    >
+      <div
+        className={
+          isChatFullBleed
+            ? "w-full px-3 pt-3 sm:w-auto sm:px-0 sm:pt-0"
+            : undefined
+        }
+      >
+        <TopControls
+          locale={locale}
+          onToggleLocale={toggleLocale}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      </div>
+
       {phase === "searching" && (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center px-4">
           <SearchingAnimation messages={searchingMessages} />
 
           <button
             onClick={handleCancelSearch}
-            className="text-sm text-muted hover:text-foreground"
+            className="mt-2 text-sm text-muted hover:text-foreground"
           >
             {t.cancelSearch}
           </button>
@@ -203,14 +220,14 @@ export default function MatchPage() {
       )}
 
       {phase === "noMatch" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-6 text-center">
+        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
           <h3 className="font-display text-lg font-semibold">
             {t.noMatchTitle}
           </h3>
           <p className="mt-1 text-sm text-muted">{t.noMatchSubtitle}</p>
           <Button
             size="lg"
-            className="mt-6 p-2 w-full bg-gradient-to-r from-brand to-brand-pink"
+            className="mt-6 w-full bg-gradient-to-r from-brand to-brand-pink p-2"
             onClick={handleNextMatch}
           >
             {t.tryAgain}
@@ -219,21 +236,21 @@ export default function MatchPage() {
       )}
 
       {phase === "chat" && session && !showReport && !showZodiacPicker && (
-        <div className="flex h-[85vh] w-full max-w-lg flex-col rounded-lg border border-border bg-surface1 shadow-[0_8px_40px_rgba(124,92,255,0.08)]">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <div className="flex items-center gap-2.5">
-              <span className="relative">
-                <Avatar id={session.partnerId} size={36} />
+        <div className="flex h-[100dvh] w-full flex-col border-border bg-surface1 sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+              <span className="relative shrink-0">
+                <Avatar id={session.partnerId} size={36} minSize={30} />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface1 bg-success" />
               </span>
-              <span className="text-sm font-medium">
+              <span className="truncate text-sm font-medium">
                 {getAvatar(session.partnerId).name}
               </span>
             </div>
             <button
               onClick={() => setShowReport(true)}
               aria-label={t.reportTitle}
-              className="rounded-sm p-2 text-muted transition-colors hover:bg-surface2 hover:text-danger"
+              className="shrink-0 rounded-sm p-2 text-muted transition-colors hover:bg-surface2 hover:text-danger"
             >
               ⚑
             </button>
@@ -245,7 +262,7 @@ export default function MatchPage() {
 
           <div
             ref={scrollRef}
-            className="flex-1 space-y-3 overflow-y-auto px-4 py-4"
+            className="flex-1 space-y-3 overflow-y-auto px-3 py-3 sm:px-4 sm:py-4"
             role="log"
           >
             {messages.map((m, i) => (
@@ -263,12 +280,12 @@ export default function MatchPage() {
             {partnerTyping && <TypingIndicator />}
           </div>
 
-          <div className="flex items-center gap-1 px-3 pt-2">
+          <div className="flex items-center gap-1 overflow-x-auto px-2.5 pt-2 sm:gap-1 sm:px-3 [&::-webkit-scrollbar]:hidden">
             {QUICK_REACTIONS.map((emoji) => (
               <button
                 key={emoji}
                 onClick={() => sendMessage(emoji)}
-                className="rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
+                className="shrink-0 rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
               >
                 {emoji}
               </button>
@@ -276,20 +293,25 @@ export default function MatchPage() {
             <button
               onClick={() => setShowZodiacPicker(true)}
               title={t.zodiacButton}
-              className="rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted transition-colors hover:text-foreground"
+              className="ml-1 shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
             >
-              🔮 {t.zodiacButton}
+              🔮 <span className="hidden sm:inline">{t.zodiacButton}</span>
             </button>
             <button
               onClick={() => sendMessage(randomIcebreaker())}
               title={t.icebreaker}
-              className="ml-auto rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted transition-colors hover:text-foreground"
+              className="ml-auto shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
             >
-              🎲 {t.icebreaker}
+              🎲 <span className="hidden sm:inline">{t.icebreaker}</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-2 border-t border-border p-3">
+          <div
+            className="flex items-center gap-1.5 border-t border-border p-2.5 sm:gap-2 sm:p-3"
+            style={{
+              paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))",
+            }}
+          >
             <input
               value={draft}
               onChange={(e) => {
@@ -298,16 +320,49 @@ export default function MatchPage() {
               }}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder={t.typeMessage}
-              className="h-11 flex-1 rounded-sm border border-border bg-surface2 px-4 text-[15px] outline-none focus-visible:outline-2 focus-visible:outline-brand"
+              className="h-11 min-w-0 flex-1 rounded-sm border border-border bg-surface2 px-3 text-[15px] outline-none focus-visible:outline-2 focus-visible:outline-brand sm:px-4"
             />
             <Button
               onClick={handleSend}
-              className="bg-gradient-to-r from-brand to-brand-pink"
+              aria-label={t.send}
+              className="shrink-0 bg-gradient-to-r from-brand to-brand-pink px-2.5 sm:px-4"
             >
-              {t.send}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 sm:hidden"
+                aria-hidden
+              >
+                <path d="M22 2 11 13" />
+                <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+              </svg>
+              <span className="hidden sm:inline">{t.send}</span>
             </Button>
-            <Button variant="secondary" onClick={handleLeave}>
-              {t.leave}
+            <Button
+              variant="secondary"
+              aria-label={t.leave}
+              className="shrink-0 px-2.5 sm:px-4"
+              onClick={handleLeave}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 sm:hidden"
+                aria-hidden
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              <span className="hidden sm:inline">{t.leave}</span>
             </Button>
           </div>
         </div>
@@ -337,7 +392,7 @@ export default function MatchPage() {
       )}
 
       {phase === "disconnected" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-6 text-center">
+        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
           <h3 className="font-display text-lg font-semibold">
             {t.disconnectedTitle}
           </h3>
@@ -353,7 +408,7 @@ export default function MatchPage() {
       )}
 
       {phase === "reported" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-6 text-center">
+        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
           <h3 className="font-display text-lg font-semibold">
             {t.reportedTitle}
           </h3>
@@ -376,12 +431,14 @@ export default function MatchPage() {
         />
       )}
 
-      <button
-        onClick={() => router.push("/")}
-        className="mt-6 text-xs text-muted hover:text-foreground"
-      >
-        {t.backHome}
-      </button>
+      {!isChatFullBleed && (
+        <button
+          onClick={() => router.push("/")}
+          className="mt-6 text-xs text-muted hover:text-foreground"
+        >
+          {t.backHome}
+        </button>
+      )}
     </main>
   );
 }

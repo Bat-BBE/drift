@@ -1,14 +1,30 @@
 import { getAvatar } from "@/lib/avatars";
 
-export function Avatar({ id, size = 32 }: { id: string; size?: number }) {
+type AvatarProps = {
+  id: string;
+  /** Desktop дээрх суурь хэмжээ (px) */
+  size?: number;
+  /** Жижиг дэлгэц дээрх хамгийн бага хэмжээ (px) */
+  minSize?: number;
+  className?: string;
+};
+
+export function Avatar({
+  id,
+  size = 32,
+  minSize,
+  className = "",
+}: AvatarProps) {
   const a = getAvatar(id);
+  const min = minSize ?? Math.round(size * 0.75);
+
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full leading-none"
+      className={`inline-flex aspect-square shrink-0 select-none items-center justify-center rounded-full leading-none overflow-hidden ${className}`}
       style={{
-        width: size,
-        height: size,
-        fontSize: size * 0.55,
+        width: `clamp(${min}px, ${(size / 16).toFixed(3)}rem, ${size}px)`,
+        height: `clamp(${min}px, ${(size / 16).toFixed(3)}rem, ${size}px)`,
+        fontSize: `clamp(${(min * 0.55).toFixed(1)}px, ${((size * 0.55) / 16).toFixed(3)}rem, ${(size * 0.55).toFixed(1)}px)`,
         background: `linear-gradient(135deg, ${a.from}, ${a.to})`,
       }}
       aria-hidden
