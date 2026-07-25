@@ -9,13 +9,13 @@ const STORAGE_KEY = "drift-locale";
 const dict = {
   mn: {
     onlineConnecting: "Онлайн хэрэглэгчдийн тоог ачааллаж байна...",
-    onlineCount: (n: number) => `Одоо ${n} хүн онлайн байна`,
+    onlineCount: (n: number) => `Одоогоор ${n} хүн онлайн байна`,
 
     heroLine1: "Эмо байна уу?",
-    heroLine2: "Нэг бичээд үзэх үү.",
+    heroLine2: "Нэг бичээд үзэх үү?",
 
     heroSubtitle:
-      "100% нэрээ нууцалсан. Бүртгэлгүй. Шинэ хүнтэй чөлөөтэй ярилц.",
+      "100% нэрээ нууцалсан. Бүртгэл шаардлагагүй. Шинэ хүнтэй чөлөөтэй ярилцаарай.",
 
     startChatting: "Чат эхлүүлэх",
 
@@ -26,43 +26,57 @@ const dict = {
     safetyTitle: "Аюулгүй байдлын зөвлөмж",
 
     safetyTips: [
-      "Өөрийн овог нэр, утасны дугаар, хаяг зэрэг хувийн мэдээллээ бүү хуваалцаарай.",
+      "Өөрийн нэр, утасны дугаар, хаяг зэрэг хувийн мэдээллээ бүү хуваалцаарай.",
       "Хэрэв яриа танд тухгүй санагдвал хүссэн үедээ чатаас гарч болно.",
       "Зохисгүй эсвэл сэжигтэй хэрэглэгчийг мэдээлээрэй.",
-      "Бусдыг хүндэтгэж, соёлтой харилцаарай.",
+      "Бусдыг хүндэтгэн, соёлтой харилцаарай.",
     ],
 
-    seen: "харсан",
-    icebreaker: "Санамсаргvй асуулт",
+    seen: "үзсэн",
 
-    zodiacButton: "Ордоо тааруулъя",
-    zodiacTitle: "Ямар ордтой вэ?",
-    zodiacPicked: "сонголоо:",
+    icebreaker: "Санамсаргүй асуулт",
+
+    zodiacButton: "Ордоороо тааръя",
+
+    zodiacTitle: "Таны орд юу вэ?",
+
+    zodiacPicked: "Сонгосон орд:",
 
     notDating:
-      "Энэ бол болзооны апп биш. Шинэ хүмүүстэй аюулгүй, энгийн байдлаар харилцах орчин.",
+      "Энэ бол болзооны апп биш. Харин шинэ хүмүүстэй аюулгүй, нэрээ нууцлан ярилцах орчин юм.",
 
-    matchesToday: (n: number) => `Өнөөдөр ${n} хос vvссэн`,
-    howItWorksTitle: "Яаж ажилладаг вэ?",
+    matchesToday: (n: number) => `Өнөөдөр ${n} хүн хоорондоо холбогдсон`,
+
+    howItWorksTitle: "Хэрхэн ажилладаг вэ?",
+
     step1Title: "Дар",
-    step1Desc: "Товч дараад л болоо — бvртгvvлэх шаардлагагvй.",
-    step2Title: "Хvлээ",
-    step2Desc: "Хэдхэн секундын дотор тохирох хvн олдоно.",
+
+    step1Desc: "Товчийг дарахад л хангалттай. Бүртгүүлэх шаардлагагүй.",
+
+    step2Title: "Хүлээ",
+
+    step2Desc: "Хэдхэн секундын дараа танд тохирох хүн олдоно.",
+
     step3Title: "Ярилц",
-    step3Desc: "Чөлөөтэй ярилц, таалагдвал найз бол.",
+
+    step3Desc: "Чөлөөтэй ярилц. Хэрэв таалагдвал найзууд болоорой.",
 
     searching1: "Тохирох хүн хайж байна...",
+
     searching2: "Түр хүлээнэ үү...",
-    searching3: "Холбох хүн хайж байна...",
+
+    searching3: "Холбогдох хүн хайж байна...",
+
     searching4: "Бараг боллоо...",
 
-    cancelSearch: "Хайлтыг зогсоох",
+    cancelSearch: "Хайлт зогсоох",
 
     noMatchTitle: "Одоогоор холбогдох хүн алга",
-    noMatchSubtitle:
-      "Яг одоо онлайн хэрэглэгч байхгүй байна. Түр хүлээгээд дахин оролдоно уу.",
 
-    tryAgain: "Дахин хайх",
+    noMatchSubtitle:
+      "Яг одоогоор онлайн хэрэглэгч байхгүй байна. Түр хүлээгээд дахин оролдоно уу.",
+
+    tryAgain: "Дахин оролдох",
 
     matchFound: "Холбогдох хүн олдлоо!",
 
@@ -79,7 +93,7 @@ const dict = {
     reportTitle: "Хэрэглэгчийг мэдээлэх",
 
     reportSubtitle:
-      "Мэдээлсний дараа чат шууд дуусна. Нөгөө тал таныг мэдээлснийг мэдэхгүй.",
+      "Мэдээлсний дараа чат шууд дуусна. Нөгөө хэрэглэгч таныг мэдээлсэн гэдгийг мэдэхгүй.",
 
     reportReasons: [
       "Дарамталсан",
@@ -92,21 +106,21 @@ const dict = {
 
     cancel: "Болих",
 
-    disconnectedTitle: "Нөгөө хүн чатаас гарлаа",
+    disconnectedTitle: "Нөгөө хэрэглэгч чатаас гарлаа",
 
-    disconnectedSubtitle: "Энэ яриа дууссан.",
+    disconnectedSubtitle: "Энэ яриа дууслаа.",
 
     reportedTitle: "Мэдээлэл амжилттай илгээгдлээ",
 
     reportedSubtitle:
-      "Баярлалаа. Таны мэдээллийг хүлээн авлаа. Энэ нь нөгөө хэрэглэгчид харагдахгүй.",
+      "Баярлалаа. Таны мэдээллийг хүлээн авлаа. Энэ мэдээлэл нөгөө хэрэглэгчид харагдахгүй.",
 
     findNewMatch: "Шинэ хүнтэй холбогдох",
 
-    rateTitle: "Энэ яриа ямар санагдсан бэ?",
+    rateTitle: "Энэ яриа танд ямар санагдсан бэ?",
 
     rateSubtitle:
-      "Таны үнэлгээ зөвхөн илүү тохирох хүмүүсийг санал болгоход ашиглагдана.",
+      "Таны үнэлгээг зөвхөн дараагийн удаа илүү тохирох хүн санал болгоход ашиглана.",
 
     good: "Таалагдсан",
 
@@ -121,66 +135,80 @@ const dict = {
     onlineConnecting: "Loading online users...",
     onlineCount: (n: number) => `${n} people online`,
 
-    heroLine1: "New chat.",
-    heroLine2: "New conversation.",
+    heroLine1: "Feeling emo?",
+    heroLine2: "Why not send a message?",
 
     heroSubtitle:
-      "100% anonymous. No sign-up required. Start a conversation with someone new.",
+      "100% anonymous. No sign-up required. Chat freely with someone new.",
 
     startChatting: "Start chatting",
 
-    ageConfirm: "I confirm that I am 18 years or older.",
+    ageConfirm: "I am 18 years old or older.",
 
     continue: "Continue",
 
-    safetyTitle: "Stay safe",
+    safetyTitle: "Safety tips",
 
     safetyTips: [
-      "Never share personal information like your phone number, address, or passwords.",
-      "Leave the chat anytime if you feel uncomfortable.",
-      "Report users who behave inappropriately or make you feel unsafe.",
-      "Be respectful and help keep the community welcoming.",
+      "Never share personal information such as your name, phone number, or address.",
+      "If you ever feel uncomfortable, you can leave the chat at any time.",
+      "Report users who behave inappropriately or seem suspicious.",
+      "Be respectful and treat others with kindness.",
     ],
 
     seen: "seen",
+
     icebreaker: "Random question",
 
-    zodiacButton: "Match zodiacs",
-    zodiacTitle: "What's your sign?",
-    zodiacPicked: "picked:",
+    zodiacButton: "Match by zodiac",
+
+    zodiacTitle: "What's your zodiac sign?",
+
+    zodiacPicked: "Selected zodiac:",
+
     notDating:
-      "This isn't a dating app. It's a place to have safe, anonymous conversations with new people.",
+      "This isn't a dating app. It's a safe place to have anonymous conversations with new people.",
 
-    matchesToday: (n: number) => `${n} matches made today`,
-    howItWorksTitle: "How it works",
+    matchesToday: (n: number) => `${n} people connected today`,
+
+    howItWorksTitle: "How does it work?",
+
     step1Title: "Tap",
-    step1Desc: "One button — no sign-up needed.",
-    step2Title: "Wait",
-    step2Desc: "A match shows up within seconds.",
-    step3Title: "Talk",
-    step3Desc: "Chat freely — hit it off? Add them as a friend.",
 
-    searching1: "Looking for someone...",
+    step1Desc: "Just tap the button. No sign-up required.",
+
+    step2Title: "Wait",
+
+    step2Desc: "You'll be matched with someone in just a few seconds.",
+
+    step3Title: "Chat",
+
+    step3Desc: "Talk freely. If you get along, become friends.",
+
+    searching1: "Looking for someone to chat with...",
+
     searching2: "Please wait...",
+
     searching3: "Finding your chat partner...",
-    searching4: "Almost ready...",
+
+    searching4: "Almost there...",
 
     cancelSearch: "Cancel search",
 
     noMatchTitle: "No one is available right now",
 
     noMatchSubtitle:
-      "There aren't any users online at the moment. Please try again shortly.",
+      "There are no users online at the moment. Please wait a bit and try again.",
 
     tryAgain: "Try again",
 
-    matchFound: "Match found!",
+    matchFound: "Someone's ready to chat!",
 
     connecting: "Connecting...",
 
     stranger: "Stranger",
 
-    typeMessage: "Type a message...",
+    typeMessage: "Type your message...",
 
     send: "Send",
 
@@ -189,34 +217,33 @@ const dict = {
     reportTitle: "Report this user",
 
     reportSubtitle:
-      "Reporting will immediately end the chat. They won't know who reported them.",
+      "Reporting will immediately end the chat. The other user won't know that you reported them.",
 
     reportReasons: [
       "Harassment",
       "Spam or bot",
       "Sexual content",
       "Possible minor",
-      "Hate speech",
+      "Hate speech or abusive language",
       "Other",
     ],
 
     cancel: "Cancel",
 
-    disconnectedTitle: "The stranger left the chat",
+    disconnectedTitle: "The other user left the chat",
 
     disconnectedSubtitle: "This conversation has ended.",
 
     reportedTitle: "Report submitted",
 
     reportedSubtitle:
-      "Thank you. Your report has been received and remains anonymous.",
+      "Thank you. We've received your report. It will remain anonymous.",
 
-    findNewMatch: "Find another person",
+    findNewMatch: "Find someone new",
 
     rateTitle: "How was this conversation?",
 
-    rateSubtitle:
-      "Your feedback is only used to improve future matches. It's never shared.",
+    rateSubtitle: "Your feedback is only used to improve future matches.",
 
     good: "Good",
 
