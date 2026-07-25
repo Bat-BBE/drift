@@ -33,38 +33,43 @@ type Phase =
   | "noMatch";
 
 /**
- * Mobile дээр keyboard нээгдэхэд visualViewport-ийн бодит өндрийг
- * тооцоолно. Зөвхөн <640px дээр идэвхжинэ, desktop дээр `null`
- * буцааж CSS class-даа бүрэн даатгана (inline style-аар override хийхгүй).
+ * Mobile дээр keyboard нээгдэхэд visualViewport-ийн бодит өндөр (height)
+ * БОЛОН шилжилт (offsetTop)-ийг хамт хянана. iOS Safari keyboard
+ * нээгдэхэд зөвхөн height өөрчлөгддөггүй, visualViewport өөрөө
+ * layout viewport-оос "гулсдаг" (offsetTop > 0) тул үүнийг дагаагүй бол
+ * fixed container нь дэлгэцээс дээшээ гарсан мэт харагддаг.
  */
-function useKeyboardSafeHeight(active: boolean) {
-  const [height, setHeight] = useState<number | null>(null);
+function useKeyboardSafeViewport(active: boolean) {
+  const [vv, setVv] = useState<{ height: number | null; top: number }>({
+    height: null,
+    top: 0,
+  });
 
   useEffect(() => {
     if (!active || typeof window === "undefined") return;
-    const vv = window.visualViewport;
-    if (!vv) return;
+    const viewport = window.visualViewport;
+    if (!viewport) return;
 
     function update() {
       if (window.innerWidth < 640) {
-        setHeight(vv!.height);
+        setVv({ height: viewport!.height, top: viewport!.offsetTop });
       } else {
-        setHeight(null);
+        setVv({ height: null, top: 0 });
       }
     }
 
     update();
-    vv.addEventListener("resize", update);
-    vv.addEventListener("scroll", update);
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
     window.addEventListener("resize", update);
     return () => {
-      vv.removeEventListener("resize", update);
-      vv.removeEventListener("scroll", update);
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
   }, [active]);
 
-  return height;
+  return vv;
 }
 
 export default function MatchPage() {
@@ -107,13 +112,9 @@ export default function MatchPage() {
   const partnerZodiac = messages
     .find((m) => m.from === "stranger" && m.text.startsWith(ZODIAC_MARKER))
     ?.text.slice(ZODIAC_MARKER.length);
-  // const compatibility =
-  //   myZodiac && partnerZodiac
-  //     ? getCompatibility(myZodiac, partnerZodiac)
-  //     : null;
 
   const isChatFullBleed = phase === "chat";
-  const keyboardSafeHeight = useKeyboardSafeHeight(isChatFullBleed);
+  const keyboardViewport = useKeyboardSafeViewport(isChatFullBleed);
 
   useEffect(() => {
     if (ready && userId && !hasStarted.current) {
@@ -127,7 +128,7 @@ export default function MatchPage() {
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, partnerTyping, keyboardSafeHeight]);
+  }, [messages, partnerTyping, keyboardViewport.height]);
 
   useEffect(() => {
     if (status === "matched" && phase === "searching") {
@@ -156,7 +157,6 @@ export default function MatchPage() {
     return () => clearTimeout(noMatchTimer);
   }, [phase, cancelSearch]);
 
-  // 30 sec: no messages -> auto leave + jump to next match
   useEffect(() => {
     if (phase !== "chat") return;
     const idleTimer = setTimeout(async () => {
@@ -166,8 +166,6 @@ export default function MatchPage() {
     return () => clearTimeout(idleTimer);
   }, [phase, messages]);
 
-  // Chat нээлттэй үед body-г түгжиж, keyboard гарахад ард нь
-  // хуудас хажуугаар гулсаж (bounce) харагдахаас сэргийлнэ.
   useEffect(() => {
     if (isChatFullBleed) {
       const originalOverflow = document.body.style.overflow;
@@ -257,7 +255,6 @@ export default function MatchPage() {
       {phase === "searching" && (
         <div className="flex flex-col items-center px-4">
           <SearchingAnimation messages={searchingMessages} />
-
           <button
             onClick={handleCancelSearch}
             className="mt-2 text-sm text-muted hover:text-foreground"
@@ -295,8 +292,11 @@ export default function MatchPage() {
         <div
           className="fixed inset-x-0 top-0 z-10 flex h-[100dvh] w-full flex-col border-border bg-surface1 sm:static sm:h-[85vh] sm:max-w-lg sm:rounded-lg sm:border sm:shadow-[0_8px_40px_rgba(124,92,255,0.08)]"
           style={
-            keyboardSafeHeight
-              ? { height: `${keyboardSafeHeight}px` }
+            keyboardViewport.height
+              ? {
+                  height: `${keyboardViewport.height}px`,
+                  top: `${keyboardViewport.top}px`,
+                }
               : undefined
           }
         >
