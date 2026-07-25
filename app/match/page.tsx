@@ -350,15 +350,6 @@ export default function MatchPage() {
           </div>
 
           <div className="flex items-center gap-1 overflow-x-auto px-2.5 pt-2 sm:gap-1 sm:px-3 [&::-webkit-scrollbar]:hidden">
-            {QUICK_REACTIONS.map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => sendMessage(emoji)}
-                className="shrink-0 rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
-              >
-                {emoji}
-              </button>
-            ))}
             <button
               onClick={() => setShowZodiacPicker(true)}
               title={t.zodiacButton}
@@ -373,6 +364,15 @@ export default function MatchPage() {
             >
               🎲 <span className="hidden sm:inline">{t.icebreaker}</span>
             </button>
+            {QUICK_REACTIONS.map((emoji) => (
+              <button
+                key={emoji}
+                onClick={() => sendMessage(emoji)}
+                className="shrink-0 rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
+              >
+                {emoji}
+              </button>
+            ))}
           </div>
 
           <div
