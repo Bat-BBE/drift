@@ -32,8 +32,8 @@ export function ChatBubble({
     const name = message.text.slice(ZODIAC_MARKER.length);
     const sign = findZodiac(name);
     return (
-      <div className="flex justify-center py-1">
-        <span className="rounded-full border border-border bg-surface2 px-3 py-1.5 text-xs text-muted">
+      <div className="flex justify-center px-4 py-1">
+        <span className="max-w-full break-words rounded-full border border-border bg-surface2 px-3 py-1.5 text-center text-xs text-muted">
           {sign?.emoji ?? "🔮"} {pickedLabel}{" "}
           <span className="font-medium text-foreground">{name}</span>
         </span>
@@ -44,20 +44,28 @@ export function ChatBubble({
   return (
     <div
       className={cn(
-        "flex items-end gap-2",
+        "flex w-full items-end gap-1.5 px-2 sm:gap-2 sm:px-0",
         isMe ? "justify-end" : "justify-start",
       )}
     >
-      {!isMe && <Avatar id={avatarId} size={28} />}
+      {!isMe && (
+        <Avatar
+          id={avatarId}
+          size={28}
+          minSize={24}
+          className="hidden xs:inline-flex"
+        />
+      )}
       <div
         className={cn(
-          "flex max-w-[75%] flex-col",
+          "flex min-w-0 max-w-[82%] flex-col sm:max-w-[75%]",
           isMe ? "items-end" : "items-start",
         )}
       >
         <div
           className={cn(
-            "rounded-bubble px-4 py-3 text-[15px] leading-relaxed animate-bubble-in",
+            "rounded-bubble px-3.5 py-2.5 text-[14px] leading-relaxed animate-bubble-in sm:px-4 sm:py-3 sm:text-[15px]",
+            "break-words [overflow-wrap:anywhere]",
             isMe
               ? "bg-brand text-white rounded-br-md"
               : "bg-surface2 text-foreground rounded-bl-md",
@@ -66,7 +74,7 @@ export function ChatBubble({
           {message.text}
         </div>
         {showTime && (
-          <span className="mt-1 flex items-center gap-1 px-1 font-mono text-[11px] text-muted">
+          <span className="mt-1 flex items-center gap-1 px-1 font-mono text-[10px] text-muted sm:text-[11px]">
             {new Date(message.sentAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -77,7 +85,14 @@ export function ChatBubble({
           </span>
         )}
       </div>
-      {isMe && <Avatar id={avatarId} size={28} />}
+      {isMe && (
+        <Avatar
+          id={avatarId}
+          size={28}
+          minSize={24}
+          className="hidden xs:inline-flex"
+        />
+      )}
     </div>
   );
 }
