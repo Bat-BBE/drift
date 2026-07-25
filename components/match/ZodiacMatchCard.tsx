@@ -6,9 +6,11 @@ import { findZodiac, getCompatibility } from "@/lib/zodiac";
 export function ZodiacMatchCard({
   mySign,
   partnerSign,
+  onClose,
 }: {
   mySign: string;
   partnerSign: string;
+  onClose?: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const me = findZodiac(mySign);
@@ -83,9 +85,31 @@ export function ZodiacMatchCard({
   ];
 
   return (
-    <div className="shrink-0 border-b border-border bg-surface2/60 px-3 py-3 sm:px-4">
+    <div className="relative shrink-0 border-b border-border bg-surface2/60 px-3 py-3 sm:px-4">
+      {onClose && (
+        <button
+          onClick={onClose}
+          aria-label="Хаах"
+          className="absolute right-2 top-2 rounded-full p-1.5 text-muted transition-colors hover:bg-surface1 hover:text-foreground active:opacity-70"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+            aria-hidden
+          >
+            <path d="M18 6 6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+
       {combo && (
-        <div className="text-center">
+        <div className="pr-6 text-center sm:pr-0">
           <p className="break-words text-sm font-semibold">
             {me.emoji} {partner.emoji} {combo.title}
           </p>
