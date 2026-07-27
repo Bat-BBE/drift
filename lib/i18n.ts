@@ -12,7 +12,7 @@ const dict = {
     onlineCount: (n: number) => `Одоогоор ${n} хүн онлайн байна`,
 
     heroLine1: "Эмо байна уу?",
-    heroLine2: "Нэг бичээд үзэх үү?",
+    heroLine2: "Бичээд үз дээ",
 
     heroSubtitle:
       "100% нэрээ нууцалсан. Бүртгэл шаардлагагүй. Шинэ хүнтэй чөлөөтэй ярилцаарай.",
@@ -146,7 +146,7 @@ const dict = {
     onlineCount: (n: number) => `${n} people online`,
 
     heroLine1: "Feeling emo?",
-    heroLine2: "Why not send a message?",
+    heroLine2: "Why not send a message",
 
     heroSubtitle:
       "100% anonymous. No sign-up required. Chat freely with someone new.",
