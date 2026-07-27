@@ -22,6 +22,7 @@ import { QUICK_REACTIONS } from "@/lib/quickReactions";
 import { ZodiacPicker } from "@/components/match/ZodiacPicker";
 import { ZodiacMatchCard } from "@/components/match/ZodiacMatchCard";
 import { ZODIAC_MARKER } from "@/lib/zodiac";
+import { FRIEND_REQUEST_MARKER, addFriend } from "@/lib/friends";
 
 type Phase =
   | "searching"
@@ -32,13 +33,6 @@ type Phase =
   | "rate"
   | "noMatch";
 
-/**
- * Mobile дээр keyboard нээгдэхэд visualViewport-ийн бодит өндөр (height)
- * БОЛОН шилжилт (offsetTop)-ийг хамт хянана. iOS Safari keyboard
- * нээгдэхэд зөвхөн height өөрчлөгддөггүй, visualViewport өөрөө
- * layout viewport-оос "гулсдаг" (offsetTop > 0) тул үүнийг дагаагүй бол
- * fixed container нь дэлгэцээс дээшээ гарсан мэт харагддаг.
- */
 function useKeyboardSafeViewport(active: boolean) {
   const [vv, setVv] = useState<{ height: number | null; top: number }>({
     height: null,
@@ -99,6 +93,7 @@ export default function MatchPage() {
   const [showZodiacCard, setShowZodiacCard] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
+  const friendAddedRef = useRef(false);
 
   const searchingMessages = [
     t.searching1,
@@ -114,8 +109,23 @@ export default function MatchPage() {
     .find((m) => m.from === "stranger" && m.text.startsWith(ZODIAC_MARKER))
     ?.text.slice(ZODIAC_MARKER.length);
 
+  const iRequestedFriend = messages.some(
+    (m) => m.from === "me" && m.text === FRIEND_REQUEST_MARKER,
+  );
+  const partnerRequestedFriend = messages.some(
+    (m) => m.from === "stranger" && m.text === FRIEND_REQUEST_MARKER,
+  );
+  const bothWantFriends = iRequestedFriend && partnerRequestedFriend;
+
   const isChatFullBleed = phase === "chat";
   const keyboardViewport = useKeyboardSafeViewport(isChatFullBleed);
+
+  useEffect(() => {
+    if (bothWantFriends && !friendAddedRef.current && userId && session) {
+      friendAddedRef.current = true;
+      addFriend(userId, session.partnerId);
+    }
+  }, [bothWantFriends, userId, session]);
 
   useEffect(() => {
     if (ready && userId && !hasStarted.current) {
@@ -218,6 +228,7 @@ export default function MatchPage() {
     await deleteSession();
     resetSession();
     hasStarted.current = false;
+    friendAddedRef.current = false;
     setPhase("searching");
     startSearch([]);
     hasStarted.current = true;
@@ -329,6 +340,12 @@ export default function MatchPage() {
             />
           )}
 
+          {bothWantFriends && (
+            <div className="border-b border-border bg-success/10 px-4 py-2 text-center text-xs text-success">
+              {t.friendAddedBanner}
+            </div>
+          )}
+
           <div
             ref={scrollRef}
             className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-4"
@@ -341,6 +358,7 @@ export default function MatchPage() {
                 showTime={i === messages.length - 1}
                 seen={m.from === "me" && partnerLastReadAt >= m.sentAt}
                 seenLabel={t.seen}
+                friendRequestLabel={t.friendRequestPill}
                 avatarId={
                   m.from === "me" ? (userId ?? "me") : session.partnerId
                 }
@@ -356,6 +374,17 @@ export default function MatchPage() {
               className="ml-1 shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
             >
               🔮 <span className="hidden sm:inline">{t.zodiacButton}</span>
+            </button>
+            <button
+              onClick={() =>
+                !iRequestedFriend && sendMessage(FRIEND_REQUEST_MARKER)
+              }
+              disabled={iRequestedFriend}
+              title={t.friendRequestButton}
+              className="ml-auto shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
+            >
+              🤝{" "}
+              <span className="hidden sm:inline">{t.friendRequestButton}</span>
             </button>
             <button
               onClick={() => sendMessage(randomIcebreaker())}

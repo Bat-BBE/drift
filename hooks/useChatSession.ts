@@ -14,6 +14,7 @@ export function useChatSession(
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
   const [partnerLastReadAt, setPartnerLastReadAt] = useState(0);
+  const [messageError, setMessageError] = useState<string | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -85,7 +86,7 @@ export function useChatSession(
         },
       )
       .on("broadcast", { event: "typing" }, (payload) => {
-        if (payload.payload.userId === uid) return;
+        if (payload.payload.userId === uid) return; // ignore our own broadcast
         setPartnerTyping(true);
         if (typingTimeout.current) clearTimeout(typingTimeout.current);
         typingTimeout.current = setTimeout(() => setPartnerTyping(false), 2000);
@@ -129,15 +130,19 @@ export function useChatSession(
   const sendMessage = useCallback(
     async (content: string) => {
       if (!sessionId || !userId || !content.trim()) return;
-      const { error } = await supabase
-        .from("messages")
-        .insert({
-          session_id: sessionId,
-          sender_id: userId,
-          content: content.trim(),
-        });
-      if (error)
-        console.error("[drift] failed to send message:", error.message);
+      const { error } = await supabase.from("messages").insert({
+        session_id: sessionId,
+        sender_id: userId,
+        content: content.trim(),
+      });
+      if (error) {
+        if (error.message.includes("rate_limited")) {
+          setMessageError("rate_limited");
+          setTimeout(() => setMessageError(null), 2500);
+        } else {
+          console.error("[drift] failed to send message:", error.message);
+        }
+      }
     },
     [sessionId, userId],
   );
@@ -159,19 +164,29 @@ export function useChatSession(
   }, [sessionId]);
 
   const reportSession = useCallback(
-    async (reason: string, reportedId: string) => {
-      if (!sessionId || !userId) return;
-      await supabase.from("reports").insert({
+    async (reason: string, reportedId: string): Promise<boolean> => {
+      if (!sessionId || !userId) return false;
+      const { error: reportError } = await supabase.from("reports").insert({
         session_id: sessionId,
         reporter_id: userId,
         reported_id: reportedId,
         reason,
         message_snapshot: messages,
       });
+      if (reportError) {
+        if (reportError.message.includes("rate_limited")) {
+          setMessageError("rate_limited");
+          setTimeout(() => setMessageError(null), 2500);
+        } else {
+          console.error("[drift] failed to file report:", reportError.message);
+        }
+        return false;
+      }
       await supabase
         .from("match_sessions")
         .update({ ended_at: new Date().toISOString(), end_reason: "reported" })
         .eq("id", sessionId);
+      return true;
     },
     [sessionId, userId, messages],
   );
@@ -199,6 +214,7 @@ export function useChatSession(
     partnerTyping,
     partnerDisconnected,
     partnerLastReadAt,
+    messageError,
     sendMessage,
     notifyTyping,
     leaveSession,

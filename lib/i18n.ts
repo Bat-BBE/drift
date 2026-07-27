@@ -23,6 +23,9 @@ const dict = {
 
     continue: "Үргэлжлүүлэх",
 
+    shareLabel: "Найз руугаа хуваалцах",
+    shareCopied: "Холбоос хуулагдлаа!",
+
     safetyTitle: "Аюулгүй байдлын зөвлөмж",
 
     safetyTips: [
@@ -41,6 +44,13 @@ const dict = {
     zodiacTitle: "Таны орд юу вэ?",
 
     zodiacPicked: "Сонгосон орд:",
+    friendRequestButton: "Найз болох",
+    friendRequestPill: "найз болохыг хvслээ",
+    friendAddedBanner: "🎉 Та хоёул найз боллоо!",
+    friendsTitle: "Найзууд",
+    friendsEmpty:
+      "Одоохондоо найз алга. Ярилцлагадаа хоёулаа 🤝 дарвал энд гарч ирнэ.",
+    friendSince: "Найз болсон",
 
     notDating:
       "Энэ бол болзооны апп биш. Харин шинэ хүмүүстэй аюулгүй, нэрээ нууцлан ярилцах орчин юм.",
@@ -147,6 +157,9 @@ const dict = {
 
     continue: "Continue",
 
+    shareLabel: "Share with a friend",
+    shareCopied: "Link copied!",
+
     safetyTitle: "Safety tips",
 
     safetyTips: [
@@ -165,6 +178,12 @@ const dict = {
     zodiacTitle: "What's your zodiac sign?",
 
     zodiacPicked: "Selected zodiac:",
+    friendRequestButton: "Add friend",
+    friendRequestPill: "wants to be friends",
+    friendAddedBanner: "🎉 You're friends now!",
+    friendsTitle: "Friends",
+    friendsEmpty: "No friends yet. Both tap 🤝 in a chat to add each other.",
+    friendSince: "Friends since",
 
     notDating:
       "This isn't a dating app. It's a safe place to have anonymous conversations with new people.",

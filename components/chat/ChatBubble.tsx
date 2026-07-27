@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/shared/Avatar";
 import { ZODIAC_MARKER, findZodiac } from "@/lib/zodiac";
+import { FRIEND_REQUEST_MARKER } from "@/lib/friends";
 
 export interface Message {
   id: string;
@@ -16,6 +17,7 @@ export function ChatBubble({
   showTime,
   seen,
   seenLabel,
+  friendRequestLabel,
   avatarId,
   pickedLabel,
 }: {
@@ -23,10 +25,21 @@ export function ChatBubble({
   showTime: boolean;
   seen?: boolean;
   seenLabel?: string;
+  friendRequestLabel?: string;
   avatarId: string;
   pickedLabel?: string;
 }) {
   const isMe = message.from === "me";
+
+  if (message.text === FRIEND_REQUEST_MARKER) {
+    return (
+      <div className="flex justify-center py-1">
+        <span className="rounded-full border border-border bg-surface2 px-3 py-1.5 text-xs text-muted">
+          🤝 {isMe ? "Чи" : "Тэр"} {friendRequestLabel}
+        </span>
+      </div>
+    );
+  }
 
   if (message.text.startsWith(ZODIAC_MARKER)) {
     const name = message.text.slice(ZODIAC_MARKER.length);

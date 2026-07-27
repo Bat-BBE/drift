@@ -15,6 +15,7 @@ export function useMatchmaking(userId: string | null) {
     "idle",
   );
   const [session, setSession] = useState<MatchedSession | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const channelsRef = useRef<RealtimeChannel[]>([]);
 
   const cleanupChannels = useCallback(() => {
@@ -27,6 +28,7 @@ export function useMatchmaking(userId: string | null) {
       if (!userId) return;
       setStatus("searching");
       setSession(null);
+
       const { error } = await supabase
         .from("match_queue")
         .upsert(
@@ -35,7 +37,12 @@ export function useMatchmaking(userId: string | null) {
         );
 
       if (error) {
-        console.error("[drift] failed to join queue:", error.message);
+        if (error.message.includes("rate_limited")) {
+          setSearchError("rate_limited");
+          setTimeout(() => setSearchError(null), 2500);
+        } else {
+          console.error("[drift] failed to join queue:", error.message);
+        }
         setStatus("idle");
         return;
       }
@@ -69,6 +76,9 @@ export function useMatchmaking(userId: string | null) {
         .subscribe();
 
       channelsRef.current = [asA, asB];
+
+      // Also cover the case where a match was already created between the
+      // upsert call and the subscriptions going live (race on slow networks).
       const { data: existing } = await supabase
         .from("match_sessions")
         .select("*")
@@ -106,6 +116,7 @@ export function useMatchmaking(userId: string | null) {
   return {
     status,
     session,
+    searchError,
     startSearch,
     cancelSearch,
     resetSession: () => setSession(null),
