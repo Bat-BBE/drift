@@ -103,12 +103,12 @@ export default function LandingPage() {
         <p className="mt-6 text-xs text-muted">{t.notDating}</p>
         <div className="mt-4 flex items-center gap-3">
           <ShareButton label={t.shareLabel} copiedLabel={t.shareCopied} />
-          <Link
+          {/* <Link
             href="/friends"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface1/80 px-4 py-2 text-xs text-muted backdrop-blur-xl transition-colors hover:text-foreground"
           >
             {t.friendsTitle}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </main>

@@ -330,6 +330,28 @@ export default function MatchPage() {
             >
               ⚑
             </button>
+            <Button
+              variant="secondary"
+              aria-label={t.leave}
+              className="shrink-0 px-2.5 sm:px-4"
+              onClick={handleLeave}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 sm:hidden"
+                aria-hidden
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              <span className="hidden sm:inline">{t.leave}</span>
+            </Button>
           </div>
 
           {myZodiac && partnerZodiac && showZodiacCard && (
@@ -375,7 +397,7 @@ export default function MatchPage() {
             >
               🔮 <span className="hidden sm:inline">{t.zodiacButton}</span>
             </button>
-            <button
+            {/* <button
               onClick={() =>
                 !iRequestedFriend && sendMessage(FRIEND_REQUEST_MARKER)
               }
@@ -385,7 +407,7 @@ export default function MatchPage() {
             >
               🤝{" "}
               <span className="hidden sm:inline">{t.friendRequestButton}</span>
-            </button>
+            </button> */}
             <button
               onClick={() => sendMessage(randomIcebreaker())}
               title={t.icebreaker}
@@ -442,28 +464,6 @@ export default function MatchPage() {
                 <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
               </svg>
               <span className="hidden sm:inline">{t.send}</span>
-            </Button>
-            <Button
-              variant="secondary"
-              aria-label={t.leave}
-              className="shrink-0 px-2.5 sm:px-4"
-              onClick={handleLeave}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5 sm:hidden"
-                aria-hidden
-              >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <path d="M16 17l5-5-5-5" />
-                <path d="M21 12H9" />
-              </svg>
-              <span className="hidden sm:inline">{t.leave}</span>
             </Button>
           </div>
         </div>
