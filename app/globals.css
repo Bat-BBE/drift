@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 :root {
-  /* Dark mode is the default per the "Quiet Motion" design system */
   --background: #0b0b0f;
   --surface-1: #131318;
   --surface-2: #1b1b22;
@@ -45,7 +44,6 @@
   --shadow-glow-strong: 0 0 60px rgba(124, 92, 255, 0.12);
 }
 
-/* Base Styles */
 * {
   border-color: var(--border);
   box-sizing: border-box;
@@ -60,13 +58,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Selection */
 ::selection {
   background: var(--brand-primary);
   color: white;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -82,7 +78,6 @@ body {
   background: var(--brand-primary);
 }
 
-/* Custom Utilities */
 @layer utilities {
   .animate-gradient {
     background-size: 300% 300%;
@@ -106,7 +101,6 @@ body {
   }
 }
 
-/* Keyframes */
 @keyframes float {
   0%,
   100% {

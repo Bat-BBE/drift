@@ -77,8 +77,6 @@ export function useMatchmaking(userId: string | null) {
 
       channelsRef.current = [asA, asB];
 
-      // Also cover the case where a match was already created between the
-      // upsert call and the subscriptions going live (race on slow networks).
       const { data: existing } = await supabase
         .from("match_sessions")
         .select("*")

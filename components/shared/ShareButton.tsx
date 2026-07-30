@@ -15,7 +15,7 @@ export function ShareButton({
     const url = typeof window !== "undefined" ? window.location.origin : "";
     const shareData = {
       title: "Drift",
-      text: "Бусадтай секундын дотор ярь 👋",
+      text: "Бусадтай секундын дотор бич 👋",
       url,
     };
 

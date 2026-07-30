@@ -22,7 +22,6 @@ import { QUICK_REACTIONS } from "@/lib/quickReactions";
 import { ZodiacPicker } from "@/components/match/ZodiacPicker";
 import { ZodiacMatchCard } from "@/components/match/ZodiacMatchCard";
 import { ZODIAC_MARKER } from "@/lib/zodiac";
-import { FRIEND_REQUEST_MARKER, addFriend } from "@/lib/friends";
 
 type Phase =
   | "searching"
@@ -38,12 +37,10 @@ function useKeyboardSafeViewport(active: boolean) {
     height: null,
     top: 0,
   });
-
   useEffect(() => {
     if (!active || typeof window === "undefined") return;
     const viewport = window.visualViewport;
     if (!viewport) return;
-
     function update() {
       if (window.innerWidth < 640) {
         setVv({ height: viewport!.height, top: viewport!.offsetTop });
@@ -51,7 +48,6 @@ function useKeyboardSafeViewport(active: boolean) {
         setVv({ height: null, top: 0 });
       }
     }
-
     update();
     viewport.addEventListener("resize", update);
     viewport.addEventListener("scroll", update);
@@ -62,7 +58,6 @@ function useKeyboardSafeViewport(active: boolean) {
       window.removeEventListener("resize", update);
     };
   }, [active]);
-
   return vv;
 }
 
@@ -109,23 +104,14 @@ export default function MatchPage() {
     .find((m) => m.from === "stranger" && m.text.startsWith(ZODIAC_MARKER))
     ?.text.slice(ZODIAC_MARKER.length);
 
-  const iRequestedFriend = messages.some(
-    (m) => m.from === "me" && m.text === FRIEND_REQUEST_MARKER,
-  );
-  const partnerRequestedFriend = messages.some(
-    (m) => m.from === "stranger" && m.text === FRIEND_REQUEST_MARKER,
-  );
-  const bothWantFriends = iRequestedFriend && partnerRequestedFriend;
-
   const isChatFullBleed = phase === "chat";
   const keyboardViewport = useKeyboardSafeViewport(isChatFullBleed);
 
   useEffect(() => {
-    if (bothWantFriends && !friendAddedRef.current && userId && session) {
+    if (!friendAddedRef.current && userId && session) {
       friendAddedRef.current = true;
-      addFriend(userId, session.partnerId);
     }
-  }, [bothWantFriends, userId, session]);
+  }, [userId, session]);
 
   useEffect(() => {
     if (ready && userId && !hasStarted.current) {
@@ -362,12 +348,6 @@ export default function MatchPage() {
             />
           )}
 
-          {bothWantFriends && (
-            <div className="border-b border-border bg-success/10 px-4 py-2 text-center text-xs text-success">
-              {t.friendAddedBanner}
-            </div>
-          )}
-
           <div
             ref={scrollRef}
             className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-4"
@@ -397,17 +377,6 @@ export default function MatchPage() {
             >
               🔮 <span className="hidden sm:inline">{t.zodiacButton}</span>
             </button>
-            {/* <button
-              onClick={() =>
-                !iRequestedFriend && sendMessage(FRIEND_REQUEST_MARKER)
-              }
-              disabled={iRequestedFriend}
-              title={t.friendRequestButton}
-              className="ml-auto shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
-            >
-              🤝{" "}
-              <span className="hidden sm:inline">{t.friendRequestButton}</span>
-            </button> */}
             <button
               onClick={() => sendMessage(randomIcebreaker())}
               title={t.icebreaker}

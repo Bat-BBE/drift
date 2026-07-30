@@ -2,9 +2,7 @@ import { getAvatar } from "@/lib/avatars";
 
 type AvatarProps = {
   id: string;
-  /** Desktop дээрх суурь хэмжээ (px) */
   size?: number;
-  /** Жижиг дэлгэц дээрх хамгийн бага хэмжээ (px) */
   minSize?: number;
   className?: string;
 };
