@@ -16,7 +16,6 @@ export function ChatBubble({
   showTime,
   seen,
   seenLabel,
-  friendRequestLabel,
   avatarId,
   pickedLabel,
 }: {
@@ -24,7 +23,6 @@ export function ChatBubble({
   showTime: boolean;
   seen?: boolean;
   seenLabel?: string;
-  friendRequestLabel?: string;
   avatarId: string;
   pickedLabel?: string;
 }) {

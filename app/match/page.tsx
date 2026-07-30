@@ -360,7 +360,6 @@ export default function MatchPage() {
                 showTime={i === messages.length - 1}
                 seen={m.from === "me" && partnerLastReadAt >= m.sentAt}
                 seenLabel={t.seen}
-                friendRequestLabel={t.friendRequestPill}
                 avatarId={
                   m.from === "me" ? (userId ?? "me") : session.partnerId
                 }
