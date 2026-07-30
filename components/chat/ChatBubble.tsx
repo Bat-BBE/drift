@@ -3,12 +3,22 @@
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/shared/Avatar";
 import { ZODIAC_MARKER, findZodiac } from "@/lib/zodiac";
+import { DUEL_START_MARKER, DUEL_MOVE_MARKER } from "@/lib/duel";
+import { QUIZ_ANSWER_MARKER } from "@/lib/compatibility";
 
 export interface Message {
   id: string;
   from: "me" | "stranger";
   text: string;
   sentAt: number;
+}
+
+export function isHiddenGameMessage(text: string): boolean {
+  return (
+    text.startsWith(DUEL_START_MARKER) ||
+    text.startsWith(DUEL_MOVE_MARKER) ||
+    text.startsWith(QUIZ_ANSWER_MARKER)
+  );
 }
 
 export function ChatBubble({
@@ -27,6 +37,10 @@ export function ChatBubble({
   pickedLabel?: string;
 }) {
   const isMe = message.from === "me";
+
+  if (isHiddenGameMessage(message.text)) {
+    return null;
+  }
 
   if (message.text.startsWith(ZODIAC_MARKER)) {
     const name = message.text.slice(ZODIAC_MARKER.length);

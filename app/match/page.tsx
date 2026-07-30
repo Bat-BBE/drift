@@ -22,6 +22,21 @@ import { QUICK_REACTIONS } from "@/lib/quickReactions";
 import { ZodiacPicker } from "@/components/match/ZodiacPicker";
 import { ZodiacMatchCard } from "@/components/match/ZodiacMatchCard";
 import { ZODIAC_MARKER } from "@/lib/zodiac";
+import { StreakBadge } from "@/components/chat/StreakBadge";
+import { DuelGame } from "@/components/chat/DuelGame";
+import { CompatibilityQuiz } from "@/components/chat/CompatibilityQuiz";
+import { useStreak } from "@/hooks/useStreak";
+import {
+  getLatestDuelRound,
+  encodeDuelStart,
+  encodeDuelMove,
+} from "@/lib/duel";
+import {
+  decodeQuizAnswers,
+  encodeQuizAnswers,
+  QUIZ_ANSWER_MARKER,
+  type QuizAnswers,
+} from "@/lib/compatibility";
 
 type Phase =
   | "searching"
@@ -89,6 +104,17 @@ export default function MatchPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
   const friendAddedRef = useRef(false);
+  const [showDuel, setShowDuel] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const { streak, milestone } = useStreak(messages);
+  const duelRound = getLatestDuelRound(messages);
+
+  const myQuizAnswers = messages.find(
+    (m) => m.from === "me" && m.text.startsWith(QUIZ_ANSWER_MARKER),
+  );
+  const theirQuizAnswers = messages.find(
+    (m) => m.from === "stranger" && m.text.startsWith(QUIZ_ANSWER_MARKER),
+  );
 
   const searchingMessages = [
     t.searching1,
@@ -309,6 +335,16 @@ export default function MatchPage() {
                 {getAvatar(session.partnerId).name}
               </span>
             </div>
+            <StreakBadge streak={streak} milestone={milestone} />
+            <button
+              onClick={() => {
+                sendMessage(encodeDuelStart(crypto.randomUUID()));
+                setShowDuel(true);
+              }}
+            >
+              ⚔️
+            </button>
+            <button onClick={() => setShowQuiz(true)}>💫</button>
             <button
               onClick={() => setShowReport(true)}
               aria-label={t.reportTitle}
@@ -457,6 +493,30 @@ export default function MatchPage() {
           subtitle={t.reportSubtitle}
           reasons={t.reportReasons}
           cancelLabel={t.cancel}
+        />
+      )}
+
+      {phase === "chat" && showDuel && duelRound && (
+        <DuelGame
+          round={duelRound}
+          onPickMove={(move) =>
+            sendMessage(encodeDuelMove(duelRound.roundId, move))
+          }
+          onClose={() => setShowDuel(false)}
+          onRematch={() => sendMessage(encodeDuelStart(crypto.randomUUID()))}
+        />
+      )}
+
+      {phase === "chat" && showQuiz && (
+        <CompatibilityQuiz
+          myAnswers={
+            myQuizAnswers ? decodeQuizAnswers(myQuizAnswers.text) : null
+          }
+          theirAnswers={
+            theirQuizAnswers ? decodeQuizAnswers(theirQuizAnswers.text) : null
+          }
+          onAnswer={(answers) => sendMessage(encodeQuizAnswers(answers))}
+          onClose={() => setShowQuiz(false)}
         />
       )}
 
