@@ -3,7 +3,7 @@ import { isHiddenGameMessage } from "@/components/chat/ChatBubble";
 import { ZODIAC_MARKER } from "@/lib/zodiac";
 
 const STREAK_WINDOW_MS = 60_000;
-export const STREAK_MILESTONES = [5, 10, 20, 35, 50];
+export const STREAK_MILESTONES = [20, 35, 50, 70, 100, 200];
 
 export interface StreakMessageLike {
   from: "me" | "stranger";
