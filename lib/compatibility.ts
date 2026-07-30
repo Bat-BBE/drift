@@ -1,4 +1,4 @@
-export const QUIZ_ANSWER_MARKER = "\u0000QUIZANSWER::";
+export const QUIZ_ANSWER_MARKER = "__DRIFT_QUIZ_ANSWER__::";
 
 export interface QuizOption {
   id: string;
@@ -19,25 +19,25 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: "q1",
     text: "Амралтын өдрөө яаж өнгөрөөх дуртай вэ?",
     options: [
-      { id: "a", emoji: "🎬", label: "Гэртээ кино үзнэ", romance: 2, chill: 3 },
+      { id: "a", emoji: "🎬", label: "Гэртээ кино үзэх", romance: 2, chill: 3 },
       {
         id: "b",
         emoji: "🚶",
-        label: "Найзуудтайгаа гадуур зугаална",
+        label: "Найзуудтайгаа гадуур зугаалах",
         romance: 1,
         chill: 2,
       },
       {
         id: "c",
         emoji: "🧘",
-        label: "Ганцаараа тайван амарна",
+        label: "Ганцаараа тайван амрах",
         romance: 0,
         chill: 3,
       },
       {
         id: "d",
         emoji: "🗺️",
-        label: "Шинэ газар очиж адал явдал хайна",
+        label: "Шинэ газар очиж адал явдал хайх",
         romance: 3,
         chill: 1,
       },
@@ -64,14 +64,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       {
         id: "c",
         emoji: "🎮",
-        label: "Идэвхтэй тоглоом/спорт хамт хийх",
+        label: "Хөгжилтэй тоглоом/спорт хамт тоголох",
         romance: 2,
         chill: 2,
       },
       {
         id: "d",
         emoji: "💬",
-        label: "Онлайнаар удаан чатлаад дараа нь уулзах",
+        label: "Онлайнаар удаан чатлаад л байх",
         romance: 1,
         chill: 1,
       },
@@ -79,7 +79,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "q3",
-    text: "Мессеж бичихдээ ямар маягтай вэ?",
+    text: "Мессеж бичихдээ ямар хэв маягтай вэ?",
     options: [
       {
         id: "a",
@@ -88,12 +88,18 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
         romance: 3,
         chill: 0,
       },
-      { id: "b", emoji: "😂", label: "Товч, хошин шог", romance: 1, chill: 3 },
+      {
+        id: "b",
+        emoji: "😂",
+        label: "Товч, хошин байдлаар",
+        romance: 1,
+        chill: 3,
+      },
       { id: "c", emoji: "✨", label: "Emoji, GIF ихтэй", romance: 2, chill: 2 },
       {
         id: "d",
         emoji: "🤫",
-        label: "Ховор бичдэг ч утга учиртай",
+        label: "Удаж бичдэг ч утга учиртай",
         romance: 0,
         chill: 1,
       },
@@ -106,22 +112,22 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       {
         id: "a",
         emoji: "🗣️",
-        label: "Шууд ярьж тохиролцдог",
+        label: "Шууд ярьж ойлголцох",
         romance: 2,
         chill: 1,
       },
       {
         id: "b",
         emoji: "⏳",
-        label: "Цаг өгч, дараа нь ярьдаг",
+        label: "Цаг өгч, дараа нь ярих",
         romance: 1,
         chill: 2,
       },
       {
         id: "c",
         emoji: "😄",
-        label: "Хошигнож зөөллөдөг",
-        romance: 0,
+        label: "Хөгжилтэй байдлаар зөөллөх",
+        romance: 1,
         chill: 3,
       },
       {
@@ -135,7 +141,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "q5",
-    text: "Харилцаанд хамгийн чухалд юу үздэг вэ?",
+    text: "Харилцаанд хамгийн чухал нь юу вэ?",
     options: [
       {
         id: "a",
@@ -147,7 +153,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       {
         id: "b",
         emoji: "😆",
-        label: "Хамт инээж зугаацах",
+        label: "Хамт инээж хөгжилдөх",
         romance: 1,
         chill: 3,
       },
@@ -224,14 +230,15 @@ export function computeCompatibility(
   let fact: string;
   if (soulmate - friendly > 15) {
     fact =
-      "Романтик долгион давамгайлж байна 💘 — та хоёр ижил долгионтой юм шиг байна.";
+      "Романтик долгион давамгайлж байна 💘 — та хоёр ижил төрлийнх бололттой.";
   } else if (friendly - soulmate > 15) {
-    fact = "Сайхан найзын энерги мэдрэгдэж байна 👯 — хамт байхад хөгжилтэй.";
+    fact =
+      "Сайн найзын энерги мэдрэгдэж байна 👯 — хамт байхад хөгжилтэй байх бололтой.";
   } else if (soulmate >= 70 && friendly >= 70) {
     fact = "Ховор тохиолддог тэнцвэр — хоёр талдаа сайн нийцдэг хос байна ✨";
   } else {
     fact =
-      "Өвөрмөц хослол — ялгаа их ч энэ нь сонирхолтой яриа үүсгэдэг шүү 🌗";
+      "Өөр хослол — ялгаа их ч энэ нь сонирхолтой яриа үүсгэж болно шүү 🌗";
   }
 
   return {

@@ -1,5 +1,5 @@
-export const DUEL_START_MARKER = "\u0000DUELSTART::";
-export const DUEL_MOVE_MARKER = "\u0000DUELMOVE::";
+export const DUEL_START_MARKER = "__DRIFT_DUEL_START__::";
+export const DUEL_MOVE_MARKER = "__DRIFT_DUEL_MOVE__::";
 
 export type DuelMove = "rock" | "paper" | "scissors";
 export type DuelResult = "win" | "lose" | "draw";

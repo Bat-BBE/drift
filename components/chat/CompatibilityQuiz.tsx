@@ -47,8 +47,9 @@ export function CompatibilityQuiz({
 }) {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<QuizAnswers>({});
+  const [locallySubmitted, setLocallySubmitted] = useState(false);
 
-  const iAnswered = !!myAnswers;
+  const iAnswered = !!myAnswers || locallySubmitted;
   const bothAnswered = !!myAnswers && !!theirAnswers;
   const result: CompatibilityResult | null = bothAnswered
     ? computeCompatibility(myAnswers!, theirAnswers!)
@@ -61,6 +62,7 @@ export function CompatibilityQuiz({
     if (step < QUIZ_QUESTIONS.length - 1) {
       setStep(step + 1);
     } else {
+      setLocallySubmitted(true);
       onAnswer(next);
     }
   }

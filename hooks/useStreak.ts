@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { isHiddenGameMessage } from "@/components/chat/ChatBubble";
+import { ZODIAC_MARKER } from "@/lib/zodiac";
 
 const STREAK_WINDOW_MS = 60_000;
 export const STREAK_MILESTONES = [5, 10, 20, 35, 50];
@@ -10,7 +12,7 @@ export interface StreakMessageLike {
 }
 
 function isHiddenSystemMessage(text: string): boolean {
-  return text.startsWith("\u0000") || text.startsWith("__ZODIAC__");
+  return text.startsWith(ZODIAC_MARKER) || isHiddenGameMessage(text);
 }
 
 export function computeStreak(messages: StreakMessageLike[]): number {
@@ -30,6 +32,7 @@ export function computeStreak(messages: StreakMessageLike[]): number {
     lastFrom = m.from;
     lastAt = m.sentAt;
   }
+
   return streak;
 }
 
@@ -45,10 +48,14 @@ export function useStreak(messages: StreakMessageLike[]) {
     if (hit) {
       seenMilestones.current.add(hit);
       setMilestone(hit);
-      const t = setTimeout(() => setMilestone(null), 3200);
-      return () => clearTimeout(t);
     }
   }, [streak]);
+
+  useEffect(() => {
+    if (milestone === null) return;
+    const t = setTimeout(() => setMilestone(null), 3200);
+    return () => clearTimeout(t);
+  }, [milestone]);
 
   return { streak, milestone };
 }

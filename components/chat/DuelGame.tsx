@@ -20,9 +20,15 @@ export function DuelGame({
   onClose: () => void;
   onRematch: () => void;
 }) {
-  const { myMove, theirMove } = round;
+  const [localMove, setLocalMove] = useState<DuelMove | null>(null);
+  const myMove = round.myMove ?? localMove;
+  const { theirMove } = round;
   const bothPicked = !!myMove && !!theirMove;
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    setLocalMove(null);
+  }, [round.roundId]);
 
   useEffect(() => {
     if (bothPicked) {
@@ -34,10 +40,15 @@ export function DuelGame({
 
   const result = bothPicked ? resolveDuel(myMove!, theirMove!) : null;
 
+  function pickMove(move: DuelMove) {
+    setLocalMove(move);
+    onPickMove(move);
+  }
+
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-sm rounded-lg border border-border bg-surface1 p-5 text-center shadow-[0_8px_40px_rgba(124,92,255,0.15)]">
-        <h3 className="font-display text-lg font-semibold">⚔️ ХЧД</h3>
+        <h3 className="font-display text-lg font-semibold">⚔️ Х~Ч~Д</h3>
 
         {!myMove && (
           <>
@@ -46,7 +57,7 @@ export function DuelGame({
               {DUEL_MOVES.map((m) => (
                 <button
                   key={m.id}
-                  onClick={() => onPickMove(m.id)}
+                  onClick={() => pickMove(m.id)}
                   className="flex flex-col items-center gap-1 rounded-lg border border-border bg-surface2 py-3 text-xs transition-transform hover:scale-105 active:scale-95"
                 >
                   <span className="text-2xl">{m.emoji}</span>
