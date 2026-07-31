@@ -166,6 +166,86 @@ body {
   }
 }
 
+@keyframes weave-a {
+  0%,
+  100% {
+    transform: translate(-46px, -6px);
+  }
+  45%,
+  55% {
+    transform: translate(-9px, 4px);
+  }
+  90% {
+    transform: translate(-52px, 10px);
+  }
+}
+@keyframes weave-b {
+  0%,
+  100% {
+    transform: translate(46px, 10px);
+  }
+  45%,
+  55% {
+    transform: translate(9px, -4px);
+  }
+  90% {
+    transform: translate(50px, -8px);
+  }
+}
+@keyframes weave-link {
+  0%,
+  42% {
+    opacity: 0;
+  }
+  48%,
+  58% {
+    opacity: 1;
+  }
+  64%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes weave-burst {
+  0%,
+  46% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  52% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  62%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.animate-weave-a {
+  animation: weave-a 6s ease-in-out infinite;
+}
+.animate-weave-b {
+  animation: weave-b 6s ease-in-out infinite;
+}
+.animate-weave-link {
+  animation: weave-link 6s ease-in-out infinite;
+}
+.animate-weave-burst {
+  animation: weave-burst 6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-weave-a,
+  .animate-weave-b,
+  .animate-weave-link,
+  .animate-weave-burst {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
