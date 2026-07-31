@@ -31,6 +31,8 @@ export function useMatchmaking(userId: string | null) {
       genderPreference: GenderPreference = "any",
     ) => {
       if (!userId) return;
+      cleanupChannels();
+
       setStatus("searching");
       setSession(null);
 
@@ -83,19 +85,30 @@ export function useMatchmaking(userId: string | null) {
         .subscribe();
 
       channelsRef.current = [asA, asB];
+      const staleCutoff = new Date(Date.now() - 15_000).toISOString();
+      await supabase
+        .from("match_sessions")
+        .update({
+          ended_at: new Date().toISOString(),
+          end_reason: "disconnected",
+        })
+        .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
+        .is("ended_at", null)
+        .lt("started_at", staleCutoff);
 
       const { data: existing } = await supabase
         .from("match_sessions")
         .select("*")
         .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
         .is("ended_at", null)
+        .gte("started_at", staleCutoff)
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (existing) handleMatch(existing as any, userId);
     },
-    [userId],
+    [userId, cleanupChannels],
   );
 
   function handleMatch(row: any, uid: string) {

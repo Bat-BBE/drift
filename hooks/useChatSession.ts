@@ -45,7 +45,9 @@ export function useChatSession(
     init();
 
     const channel = supabase
-      .channel(`session:${sid}`, { config: { presence: { key: uid } } })
+      .channel(`session:${sid}`, {
+        config: { private: true, presence: { key: uid } },
+      })
       .on(
         "postgres_changes",
         {
@@ -103,9 +105,11 @@ export function useChatSession(
           setPartnerDisconnected(true);
         }
       })
-      .subscribe(async (subStatus) => {
+      .subscribe(async (subStatus, err) => {
         if (subStatus === "SUBSCRIBED") {
           await channel.track({ userId: uid });
+        } else if (subStatus === "CHANNEL_ERROR") {
+          console.error("[drift] session channel auth failed:", err);
         }
       });
 
@@ -171,7 +175,6 @@ export function useChatSession(
         reporter_id: userId,
         reported_id: reportedId,
         reason,
-        message_snapshot: messages,
       });
       if (reportError) {
         if (reportError.message.includes("rate_limited")) {
@@ -188,7 +191,7 @@ export function useChatSession(
         .eq("id", sessionId);
       return true;
     },
-    [sessionId, userId, messages],
+    [sessionId, userId],
   );
 
   const rateSession = useCallback(
