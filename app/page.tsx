@@ -117,16 +117,6 @@ export default function LandingPage() {
             </h3>
             <p className="mt-1 text-xs text-muted">{t.gateHint}</p>
 
-            <label className="mt-4 flex items-start gap-3 text-[13.5px] text-muted">
-              <input
-                type="checkbox"
-                checked={ageConfirmed}
-                onChange={(e) => setAgeConfirmed(e.target.checked)}
-                className="mt-0.5 h-[17px] w-[17px] flex-none rounded border-border accent-[var(--brand-primary)]"
-              />
-              {t.ageConfirm}
-            </label>
-
             <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4">
               <p className="mb-2 flex items-center gap-1.5 text-[13px] font-bold">
                 <span aria-hidden>🛡️</span> {t.safetyTitle}
@@ -145,6 +135,15 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
+            <label className="mt-4 flex items-start gap-3 text-[13.5px] text-muted">
+              <input
+                type="checkbox"
+                checked={ageConfirmed}
+                onChange={(e) => setAgeConfirmed(e.target.checked)}
+                className="mt-0.5 h-[17px] w-[17px] flex-none rounded border-border accent-[var(--brand-primary)]"
+              />
+              {t.ageConfirm}
+            </label>
 
             <Link
               href={ageConfirmed ? "/match" : "#"}
