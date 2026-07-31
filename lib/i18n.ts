@@ -77,6 +77,11 @@ const dict = {
     step3Desc:
       "Чөлөөтэй ярилц. Та хоёрын яриа нууцлалтай бусдаас тусгаарлагдах болно.",
 
+    interestTitle: "Юу сонирхдог вэ?",
+    interestSubtitle: "Сонирхлоо сонгоод тохирох хүнтэй холбогдоорой",
+    interestStartAny: "Хайж эхлэх",
+    interestStartWithCount: (n: number) => `${n} сонголттой хайх`,
+
     searching1: "Танд тохирох хүнийг хайж байна...",
 
     searching2: "Түр хүлээнэ үү...",
@@ -170,6 +175,13 @@ const dict = {
 
     shareLabel: "Share with a friend",
     shareCopied: "Link copied!",
+
+    interestTitle: "What are you into?",
+    interestSubtitle:
+      "Pick a few interests to get matched with someone who shares them",
+    interestStartAny: "Start chatting",
+    interestStartWithCount: (n: number) =>
+      `Search with ${n} interest${n > 1 ? "s" : ""}`,
 
     beforeContinue: "Before you continue",
 

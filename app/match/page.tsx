@@ -39,6 +39,7 @@ import {
 } from "@/lib/compatibility";
 
 type Phase =
+  | "selectType"
   | "searching"
   | "matched"
   | "chat"
@@ -46,6 +47,19 @@ type Phase =
   | "reported"
   | "rate"
   | "noMatch";
+
+const INTEREST_OPTIONS = [
+  { id: "deep", emoji: "🧠", label: "Амьдрал, үзэл бодол" },
+  { id: "fun", emoji: "😂", label: "Зүгээр хөгжилтэй ярилцах" },
+  { id: "advice", emoji: "📚", label: "Санал зөвлөгөө авах" },
+  { id: "gaming", emoji: "🎮", label: "Тоглоомын тухай" },
+  { id: "tech", emoji: "💻", label: "IT, AI талаар" },
+  { id: "movies", emoji: "🎬", label: "Кино, цуврал" },
+  { id: "music", emoji: "🎵", label: "Дуу хөгжим" },
+  { id: "art", emoji: "🎨", label: "Урлаг" },
+  { id: "travel", emoji: "✈️", label: "Аяллын тухай" },
+  { id: "animals", emoji: "🐾", label: "Амьтны талаар" },
+] as const;
 
 function useKeyboardSafeViewport(active: boolean) {
   const [vv, setVv] = useState<{ height: number | null; top: number }>({
@@ -126,6 +140,34 @@ function ActionChip({
   );
 }
 
+function InterestChip({
+  emoji,
+  label,
+  selected,
+  onClick,
+}: {
+  emoji: string;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm transition-all duration-150 active:scale-95 ${
+        selected
+          ? "border-transparent bg-gradient-to-r from-brand to-brand-pink text-white shadow-[0_4px_18px_rgba(124,92,255,0.35)]"
+          : "border-border bg-surface2 text-muted hover:border-brand/50 hover:text-foreground"
+      }`}
+    >
+      <span aria-hidden>{emoji}</span>
+      {label}
+    </button>
+  );
+}
+
 function StatusCard({
   title,
   subtitle,
@@ -164,7 +206,8 @@ export default function MatchPage() {
     deleteSession,
   } = useChatSession(session?.id ?? null, userId, session?.partnerId ?? null);
 
-  const [phase, setPhase] = useState<Phase>("searching");
+  const [phase, setPhase] = useState<Phase>("selectType");
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [showZodiacPicker, setShowZodiacPicker] = useState(false);
@@ -183,6 +226,10 @@ export default function MatchPage() {
   const theirQuizAnswers = messages.find(
     (m) => m.from === "stranger" && m.text.startsWith(QUIZ_ANSWER_MARKER),
   );
+
+  const selectedInterestTags = INTEREST_OPTIONS.filter((o) =>
+    selectedInterests.includes(o.id),
+  ).map((o) => `${o.emoji} ${o.label}`);
 
   const searchingMessages = [
     t.searching1,
@@ -206,13 +253,6 @@ export default function MatchPage() {
       friendAddedRef.current = true;
     }
   }, [userId, session]);
-
-  useEffect(() => {
-    if (ready && userId && !hasStarted.current) {
-      hasStarted.current = true;
-      startSearch([]);
-    }
-  }, [ready, userId, startSearch]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -310,8 +350,20 @@ export default function MatchPage() {
     hasStarted.current = false;
     friendAddedRef.current = false;
     setPhase("searching");
-    startSearch([]);
+    startSearch(selectedInterestTags);
     hasStarted.current = true;
+  }
+
+  function toggleInterest(id: string) {
+    setSelectedInterests((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  }
+
+  function handleStartSearch() {
+    hasStarted.current = true;
+    startSearch(selectedInterestTags);
+    setPhase("searching");
   }
 
   function handleStartDuel() {
@@ -349,6 +401,38 @@ export default function MatchPage() {
           onToggleTheme={toggleTheme}
         />
       </div>
+
+      {phase === "selectType" && (
+        <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
+          <span className="text-3xl">🎯</span>
+          <h2 className="mt-2 font-display text-lg font-semibold">
+            {t.interestTitle}
+          </h2>
+          <p className="mt-1 text-sm text-muted">{t.interestSubtitle}</p>
+
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {INTEREST_OPTIONS.map((opt) => (
+              <InterestChip
+                key={opt.id}
+                emoji={opt.emoji}
+                label={opt.label}
+                selected={selectedInterests.includes(opt.id)}
+                onClick={() => toggleInterest(opt.id)}
+              />
+            ))}
+          </div>
+
+          <Button
+            size="lg"
+            className="mt-6 w-full bg-gradient-to-r from-brand to-brand-pink p-2"
+            onClick={handleStartSearch}
+          >
+            {selectedInterests.length > 0
+              ? t.interestStartWithCount(selectedInterests.length)
+              : t.interestStartAny}
+          </Button>
+        </div>
+      )}
 
       {phase === "searching" && (
         <div className="flex flex-col items-center px-4">
@@ -394,6 +478,9 @@ export default function MatchPage() {
               : undefined
           }
         >
+          {/* Header — exactly two flex groups (identity | actions), each
+              with its own gap, so nothing can ever collide regardless of
+              how narrow the screen is. Identity truncates first. */}
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
@@ -470,6 +557,10 @@ export default function MatchPage() {
             {partnerTyping && <TypingIndicator />}
           </div>
 
+          {/* Quick actions — every icon-based control lives in this one
+              scrollable row now (games, extras, and reactions), styled
+              identically, instead of being split between the header and
+              here. Edge fades hint that it scrolls. */}
           <div className="relative border-t border-border">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
