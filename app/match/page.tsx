@@ -76,6 +76,74 @@ function useKeyboardSafeViewport(active: boolean) {
   return vv;
 }
 
+function IconAction({
+  icon,
+  label,
+  onClick,
+  tone = "muted",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  tone?: "muted" | "danger";
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface2 text-[15px] leading-none transition-colors active:scale-95 ${
+        tone === "danger"
+          ? "text-muted hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
+          : "text-muted hover:bg-surface1 hover:text-foreground"
+      }`}
+    >
+      {icon}
+    </button>
+  );
+}
+
+function ActionChip({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface2 px-3 text-xs text-muted transition-colors hover:text-foreground active:scale-95"
+    >
+      <span aria-hidden className="text-sm leading-none">
+        {icon}
+      </span>
+      <span className="hidden sm:inline">{label}</span>
+    </button>
+  );
+}
+
+function StatusCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="w-full max-w-md rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
+      <h3 className="font-display text-lg font-semibold">{title}</h3>
+      <p className="mt-1.5 text-sm text-muted">{subtitle}</p>
+      {children}
+    </div>
+  );
+}
+
 export default function MatchPage() {
   const router = useRouter();
   const { locale, toggleLocale, t } = useLocale();
@@ -246,6 +314,11 @@ export default function MatchPage() {
     hasStarted.current = true;
   }
 
+  function handleStartDuel() {
+    sendMessage(encodeDuelStart(crypto.randomUUID()));
+    setShowDuel(true);
+  }
+
   if (!ready) {
     return (
       <main className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
@@ -282,7 +355,7 @@ export default function MatchPage() {
           <SearchingAnimation messages={searchingMessages} />
           <button
             onClick={handleCancelSearch}
-            className="mt-2 text-sm text-muted hover:text-foreground"
+            className="-mt-4 rounded-full px-4 py-2 text-sm text-muted transition-colors hover:text-foreground"
           >
             {t.cancelSearch}
           </button>
@@ -298,11 +371,7 @@ export default function MatchPage() {
       )}
 
       {phase === "noMatch" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
-          <h3 className="font-display text-lg font-semibold">
-            {t.noMatchTitle}
-          </h3>
-          <p className="mt-1 text-sm text-muted">{t.noMatchSubtitle}</p>
+        <StatusCard title={t.noMatchTitle} subtitle={t.noMatchSubtitle}>
           <Button
             size="lg"
             className="mt-6 w-full bg-gradient-to-r from-brand to-brand-pink p-2"
@@ -310,7 +379,7 @@ export default function MatchPage() {
           >
             {t.tryAgain}
           </Button>
-        </div>
+        </StatusCard>
       )}
 
       {phase === "chat" && session && !showReport && !showZodiacPicker && (
@@ -325,55 +394,52 @@ export default function MatchPage() {
               : undefined
           }
         >
-          <div className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
-            <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
                 <Avatar id={session.partnerId} size={36} minSize={30} />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface1 bg-success" />
               </span>
-              <span className="truncate text-sm font-medium">
-                {getAvatar(session.partnerId).name}
-              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium leading-tight">
+                  {getAvatar(session.partnerId).name}
+                </p>
+                {streak > 0 && (
+                  <StreakBadge streak={streak} milestone={milestone} />
+                )}
+              </div>
             </div>
-            <StreakBadge streak={streak} milestone={milestone} />
-            <button
-              onClick={() => {
-                sendMessage(encodeDuelStart(crypto.randomUUID()));
-                setShowDuel(true);
-              }}
-            >
-              ⚔️
-            </button>
-            <button onClick={() => setShowQuiz(true)}>💫</button>
-            <button
-              onClick={() => setShowReport(true)}
-              aria-label={t.reportTitle}
-              className="shrink-0 rounded-sm p-2 text-muted transition-colors hover:bg-surface2 hover:text-danger"
-            >
-              ⚑
-            </button>
-            <Button
-              variant="secondary"
-              aria-label={t.leave}
-              className="shrink-0 px-2.5 sm:px-4"
-              onClick={handleLeave}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-5 w-5 sm:hidden"
-                aria-hidden
+
+            <div className="flex shrink-0 items-center gap-1.5">
+              <IconAction
+                icon="⚑"
+                label={t.reportTitle}
+                tone="danger"
+                onClick={() => setShowReport(true)}
+              />
+              <Button
+                variant="secondary"
+                aria-label={t.leave}
+                className="shrink-0 px-2.5 sm:px-4"
+                onClick={handleLeave}
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <path d="M16 17l5-5-5-5" />
-                <path d="M21 12H9" />
-              </svg>
-              <span className="hidden sm:inline">{t.leave}</span>
-            </Button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 sm:hidden"
+                  aria-hidden
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <path d="M16 17l5-5-5-5" />
+                  <path d="M21 12H9" />
+                </svg>
+                <span className="hidden sm:inline">{t.leave}</span>
+              </Button>
+            </div>
           </div>
 
           {myZodiac && partnerZodiac && showZodiacCard && (
@@ -404,30 +470,45 @@ export default function MatchPage() {
             {partnerTyping && <TypingIndicator />}
           </div>
 
-          <div className="flex items-center gap-1 overflow-x-auto px-2.5 pt-2 sm:gap-1 sm:px-3 [&::-webkit-scrollbar]:hidden">
-            <button
-              onClick={() => setShowZodiacPicker(true)}
-              title={t.zodiacButton}
-              className="ml-1 shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
-            >
-              🔮 <span className="hidden sm:inline">{t.zodiacButton}</span>
-            </button>
-            <button
-              onClick={() => sendMessage(randomIcebreaker())}
-              title={t.icebreaker}
-              className="ml-auto shrink-0 rounded-full border border-border bg-surface2 px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:px-3"
-            >
-              🎲 <span className="hidden sm:inline">{t.icebreaker}</span>
-            </button>
-            {QUICK_REACTIONS.map((emoji) => (
-              <button
-                key={emoji}
-                onClick={() => sendMessage(emoji)}
-                className="shrink-0 rounded-sm p-1 text-lg transition-transform duration-fast hover:scale-125 active:scale-95"
-              >
-                {emoji}
-              </button>
-            ))}
+          <div className="relative border-t border-border">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
+            <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 [&::-webkit-scrollbar]:hidden">
+              <ActionChip
+                icon="🔮"
+                label={t.zodiacButton}
+                onClick={() => setShowZodiacPicker(true)}
+              />
+              <ActionChip
+                icon="⚔️"
+                label={t.duelButton}
+                onClick={handleStartDuel}
+              />
+              <ActionChip
+                icon="💫"
+                label={t.quizButton}
+                onClick={() => setShowQuiz(true)}
+              />
+              <ActionChip
+                icon="🎲"
+                label={t.icebreaker}
+                onClick={() => sendMessage(randomIcebreaker())}
+              />
+              <span
+                className="mx-0.5 h-5 w-px shrink-0 bg-border"
+                aria-hidden
+              />
+              {QUICK_REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => sendMessage(emoji)}
+                  aria-label={emoji}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg transition-transform duration-fast hover:scale-125 hover:bg-surface2 active:scale-95"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div
@@ -521,31 +602,26 @@ export default function MatchPage() {
       )}
 
       {phase === "disconnected" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
-          <h3 className="font-display text-lg font-semibold">
-            {t.disconnectedTitle}
-          </h3>
-          <p className="mt-1 text-sm text-muted">{t.disconnectedSubtitle}</p>
+        <StatusCard
+          title={t.disconnectedTitle}
+          subtitle={t.disconnectedSubtitle}
+        >
           <Button
             size="lg"
-            className="mt-6 p-2 w-full"
+            className="mt-6 w-full p-2"
             onClick={() => setPhase("rate")}
           >
             {t.continue}
           </Button>
-        </div>
+        </StatusCard>
       )}
 
       {phase === "reported" && (
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface1 p-5 text-center sm:p-6">
-          <h3 className="font-display text-lg font-semibold">
-            {t.reportedTitle}
-          </h3>
-          <p className="mt-1 text-sm text-muted">{t.reportedSubtitle}</p>
+        <StatusCard title={t.reportedTitle} subtitle={t.reportedSubtitle}>
           <Button size="lg" className="mt-6 w-full" onClick={handleNextMatch}>
             {t.findNewMatch}
           </Button>
-        </div>
+        </StatusCard>
       )}
 
       {phase === "rate" && (
@@ -563,7 +639,7 @@ export default function MatchPage() {
       {!isChatFullBleed && (
         <button
           onClick={() => router.push("/")}
-          className="mt-6 text-xs text-muted hover:text-foreground"
+          className="mt-6 rounded-full px-4 py-2 text-xs text-muted transition-colors hover:text-foreground"
         >
           {t.backHome}
         </button>

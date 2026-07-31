@@ -102,6 +102,10 @@ const dict = {
 
     typeMessage: "Мессежээ бичээрэй...",
 
+    duelButton: "Х~Ч~Д",
+
+    quizButton: "S vs F",
+
     send: "Илгээх",
 
     leave: "Яриаг дуусгах",
@@ -251,6 +255,9 @@ const dict = {
     typeMessage: "Type your message...",
 
     send: "Send",
+    duelButton: "Х~Ч~Д",
+
+    quizButton: "S vs F",
 
     leave: "End conversation",
 
