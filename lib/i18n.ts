@@ -77,14 +77,17 @@ const dict = {
     step3Desc:
       "Чөлөөтэй ярилц. Та хоёрын яриа нууцлалтай бусдаас тусгаарлагдах болно.",
 
-    interestTitle: "Юу сонирхдог вэ?",
-    interestSubtitle: "Сонирхлоо сонгоод тохирох хүнтэй холбогдоорой",
+    interestTitle: "Сонгох",
+    interestSubtitle: "Сонголтоос хамаарч тохирох хүнтэй холбох болно",
     interestStartAny: "Хайж эхлэх",
     interestStartWithCount: (n: number) => `${n} сонголттой хайх`,
 
     searching1: "Танд тохирох хүнийг хайж байна...",
 
     searching2: "Түр хүлээнэ үү...",
+
+    genderSectionLabel: "Ямар төрлийн хүнтэй холбогдох вэ?",
+    interestSectionLabel: "Ямар сэдвээр ярилцах вэ?",
 
     searching3: "Шинэ яриа эхлэх гэж байна...",
 
@@ -189,6 +192,9 @@ const dict = {
       "Your safety matters to us. Please read and agree to the guidelines below.",
 
     safetyTitle: "Stay safe while chatting",
+
+    genderSectionLabel: "Who would you like to chat with?",
+    interestSectionLabel: "Choose a conversation topic",
 
     safetyTips: [
       "Never share personal information such as your name, phone number, or address.",

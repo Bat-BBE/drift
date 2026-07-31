@@ -61,6 +61,15 @@ const INTEREST_OPTIONS = [
   { id: "animals", emoji: "🐾", label: "Амьтны талаар" },
 ] as const;
 
+type GenderPreference = "any" | "male" | "female";
+
+const GENDER_OPTIONS: { id: GenderPreference; emoji: string; label: string }[] =
+  [
+    { id: "any", emoji: "🌈", label: "Хамаагүй" },
+    { id: "male", emoji: "👨", label: "Эрэгтэй" },
+    { id: "female", emoji: "👩", label: "Эмэгтэй" },
+  ];
+
 function useKeyboardSafeViewport(active: boolean) {
   const [vv, setVv] = useState<{ height: number | null; top: number }>({
     height: null,
@@ -208,6 +217,8 @@ export default function MatchPage() {
 
   const [phase, setPhase] = useState<Phase>("selectType");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [genderPreference, setGenderPreference] =
+    useState<GenderPreference>("any");
   const [draft, setDraft] = useState("");
   const [showReport, setShowReport] = useState(false);
   const [showZodiacPicker, setShowZodiacPicker] = useState(false);
@@ -350,7 +361,7 @@ export default function MatchPage() {
     hasStarted.current = false;
     friendAddedRef.current = false;
     setPhase("searching");
-    startSearch(selectedInterestTags);
+    startSearch(selectedInterestTags, genderPreference);
     hasStarted.current = true;
   }
 
@@ -362,7 +373,7 @@ export default function MatchPage() {
 
   function handleStartSearch() {
     hasStarted.current = true;
-    startSearch(selectedInterestTags);
+    startSearch(selectedInterestTags, genderPreference);
     setPhase("searching");
   }
 
@@ -404,22 +415,45 @@ export default function MatchPage() {
 
       {phase === "selectType" && (
         <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
-          <span className="text-3xl">🎯</span>
           <h2 className="mt-2 font-display text-lg font-semibold">
             {t.interestTitle}
           </h2>
-          <p className="mt-1 text-sm text-muted">{t.interestSubtitle}</p>
+          {/* <p className="mt-1 text-sm text-muted">{t.interestSubtitle}</p> */}
 
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {INTEREST_OPTIONS.map((opt) => (
-              <InterestChip
-                key={opt.id}
-                emoji={opt.emoji}
-                label={opt.label}
-                selected={selectedInterests.includes(opt.id)}
-                onClick={() => toggleInterest(opt.id)}
-              />
-            ))}
+          <div className="mt-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+              {t.genderSectionLabel}
+            </p>
+            <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+              {GENDER_OPTIONS.map((opt) => (
+                <InterestChip
+                  key={opt.id}
+                  emoji={opt.emoji}
+                  label={opt.label}
+                  selected={genderPreference === opt.id}
+                  onClick={() => setGenderPreference(opt.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="my-5 h-px w-full bg-border" />
+
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+              {t.interestSectionLabel}
+            </p>
+            <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+              {INTEREST_OPTIONS.map((opt) => (
+                <InterestChip
+                  key={opt.id}
+                  emoji={opt.emoji}
+                  label={opt.label}
+                  selected={selectedInterests.includes(opt.id)}
+                  onClick={() => toggleInterest(opt.id)}
+                />
+              ))}
+            </div>
           </div>
 
           <Button

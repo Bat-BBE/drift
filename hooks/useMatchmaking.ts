@@ -10,6 +10,8 @@ export interface MatchedSession {
   sharedTags: string[];
 }
 
+export type GenderPreference = "any" | "male" | "female";
+
 export function useMatchmaking(userId: string | null) {
   const [status, setStatus] = useState<"idle" | "searching" | "matched">(
     "idle",
@@ -24,17 +26,22 @@ export function useMatchmaking(userId: string | null) {
   }, []);
 
   const startSearch = useCallback(
-    async (interestTags: string[]) => {
+    async (
+      interestTags: string[],
+      genderPreference: GenderPreference = "any",
+    ) => {
       if (!userId) return;
       setStatus("searching");
       setSession(null);
 
-      const { error } = await supabase
-        .from("match_queue")
-        .upsert(
-          { user_id: userId, interest_tags: interestTags },
-          { onConflict: "user_id" },
-        );
+      const { error } = await supabase.from("match_queue").upsert(
+        {
+          user_id: userId,
+          interest_tags: interestTags,
+          looking_for: genderPreference,
+        },
+        { onConflict: "user_id" },
+      );
 
       if (error) {
         if (error.message.includes("rate_limited")) {
