@@ -418,7 +418,6 @@ export default function MatchPage() {
           <h2 className="mt-2 font-display text-lg font-semibold">
             {t.interestTitle}
           </h2>
-          {/* <p className="mt-1 text-sm text-muted">{t.interestSubtitle}</p> */}
 
           <div className="mt-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
