@@ -143,6 +143,9 @@ export function useChatSession(
         if (error.message.includes("rate_limited")) {
           setMessageError("rate_limited");
           setTimeout(() => setMessageError(null), 2500);
+        } else if (error.message.includes("message_blocked")) {
+          setMessageError("blocked");
+          setTimeout(() => setMessageError(null), 2500);
         } else {
           console.error("[drift] failed to send message:", error.message);
         }

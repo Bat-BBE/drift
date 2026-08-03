@@ -200,13 +200,20 @@ export default function MatchPage() {
   const { locale, toggleLocale, t } = useLocale();
   const { theme, toggleTheme } = useTheme();
   const { userId, ready } = useAnonymousAuth();
-  const { status, session, startSearch, cancelSearch, resetSession } =
-    useMatchmaking(userId);
+  const {
+    status,
+    session,
+    searchError,
+    startSearch,
+    cancelSearch,
+    resetSession,
+  } = useMatchmaking(userId);
   const {
     messages,
     partnerTyping,
     partnerDisconnected,
     partnerLastReadAt,
+    messageError,
     sendMessage,
     notifyTyping,
     leaveSession,
@@ -415,9 +422,11 @@ export default function MatchPage() {
 
       {phase === "selectType" && (
         <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
+          <span className="text-3xl">🎯</span>
           <h2 className="mt-2 font-display text-lg font-semibold">
             {t.interestTitle}
           </h2>
+          <p className="mt-1 text-sm text-muted">{t.interestSubtitle}</p>
 
           <div className="mt-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
@@ -464,6 +473,14 @@ export default function MatchPage() {
               ? t.interestStartWithCount(selectedInterests.length)
               : t.interestStartAny}
           </Button>
+
+          {searchError && (
+            <p className="mt-3 rounded-full bg-danger/10 px-3 py-1.5 text-xs text-danger">
+              {searchError === "blocked"
+                ? t.searchBlockedError
+                : t.rateLimitedError}
+            </p>
+          )}
         </div>
       )}
 
@@ -511,9 +528,6 @@ export default function MatchPage() {
               : undefined
           }
         >
-          {/* Header — exactly two flex groups (identity | actions), each
-              with its own gap, so nothing can ever collide regardless of
-              how narrow the screen is. Identity truncates first. */}
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
@@ -635,6 +649,13 @@ export default function MatchPage() {
             </div>
           </div>
 
+          {messageError && (
+            <p className="border-t border-border bg-danger/10 px-3 py-1.5 text-center text-xs text-danger">
+              {messageError === "blocked"
+                ? t.messageBlockedError
+                : t.rateLimitedError}
+            </p>
+          )}
           <div
             className="flex items-center gap-1.5 border-t border-border p-2.5 sm:gap-2 sm:p-3"
             style={{

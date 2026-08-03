@@ -49,6 +49,11 @@ export function useMatchmaking(userId: string | null) {
         if (error.message.includes("rate_limited")) {
           setSearchError("rate_limited");
           setTimeout(() => setSearchError(null), 2500);
+        } else if (
+          error.message.includes("row-level security") ||
+          error.message.includes("policy")
+        ) {
+          setSearchError("blocked");
         } else {
           console.error("[drift] failed to join queue:", error.message);
         }

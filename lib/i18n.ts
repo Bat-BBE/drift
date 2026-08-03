@@ -154,6 +154,11 @@ const dict = {
 
     notGreat: "Тийм ч биш",
 
+    searchBlockedError:
+      "Аюулгүй байдлын шалтгаанаар түр хугацаанд хайлт хийх боломжгүй байна",
+    rateLimitedError: "Түр хүлээгээд дахин оролдоно уу",
+    messageBlockedError: "Энэ мессежийг илгээх боломжгүй байна",
+
     nextMatch: "Өөр хүнтэй ярилцах",
 
     backHome: "← Нүүр хуудас",
@@ -269,6 +274,13 @@ const dict = {
     connecting: "Starting your conversation...",
 
     stranger: "New person",
+
+    searchBlockedError: "Search is temporarily unavailable for safety reasons.",
+
+    rateLimitedError:
+      "You're doing that too quickly. Please try again shortly.",
+
+    messageBlockedError: "Unable to send this message.",
 
     typeMessage: "Type your message...",
 
