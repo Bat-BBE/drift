@@ -112,6 +112,11 @@ const dict = {
 
     duelButton: "Х~Ч~Д",
 
+    duelInviteText: "Нөгөө Х-Ч-Д тоглохыг санал болголоо",
+    quizInviteText: "Нөгөө хүн Soulmate vs Friendly асуулгыг бөглөсөн байна",
+    inviteAccept: "Тоглох",
+    inviteDecline: "Татгалзах",
+
     quizButton: "S vs F",
 
     send: "Илгээх",
@@ -286,6 +291,11 @@ const dict = {
 
     send: "Send",
     duelButton: "Х~Ч~Д",
+
+    duelInviteText: "The other person wants to play Rock-Paper-Scissors",
+    quizInviteText: "The other person finished the Soulmate vs Friendly quiz",
+    inviteAccept: "Join",
+    inviteDecline: "Not now",
 
     quizButton: "S vs F",
 

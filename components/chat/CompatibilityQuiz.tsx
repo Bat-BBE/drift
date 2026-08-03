@@ -176,7 +176,17 @@ export function CompatibilityQuiz({
           </>
         )}
 
-        {iAnswered && !bothAnswered && <WaitingIndicator />}
+        {iAnswered && !bothAnswered && (
+          <>
+            <WaitingIndicator />
+            <button
+              onClick={onClose}
+              className="mt-4 rounded-full px-3 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
+            >
+              Гарах
+            </button>
+          </>
+        )}
 
         {bothAnswered && result && (
           <div className="mt-3 animate-quiz-fade-in">

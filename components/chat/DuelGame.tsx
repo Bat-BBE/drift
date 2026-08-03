@@ -47,7 +47,15 @@ export function DuelGame({
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface1 p-5 text-center shadow-[0_8px_40px_rgba(124,92,255,0.15)]">
+      <div className="relative w-full max-w-sm rounded-lg border border-border bg-surface1 p-5 text-center shadow-[0_8px_40px_rgba(124,92,255,0.15)]">
+        <button
+          onClick={onClose}
+          aria-label="Гарах"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface2 hover:text-foreground"
+        >
+          ✕
+        </button>
+
         <h3 className="font-display text-lg font-semibold">⚔️ Х~Ч~Д</h3>
 
         {!myMove && (
@@ -69,9 +77,14 @@ export function DuelGame({
         )}
 
         {myMove && !bothPicked && (
-          <p className="mt-4 text-sm text-muted">
-            Сонголтоо хийлээ ✅ Нөгөө хүнийг хүлээж байна...
-          </p>
+          <div className="mt-4">
+            <p className="text-sm text-muted">
+              Сонголтоо хийлээ ✅ Нөгөө хүнийг хүлээж байна...
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              Та хүлээхгүйгээр гарч, дараа нь буцаж орж болно.
+            </p>
+          </div>
         )}
 
         {bothPicked && !revealed && (
@@ -109,9 +122,9 @@ export function DuelGame({
         {!bothPicked && (
           <button
             onClick={onClose}
-            className="mt-4 text-xs text-muted hover:text-foreground"
+            className="mt-4 rounded-full px-3 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
           >
-            Цуцлах
+            {myMove ? "Гарах" : "Цуцлах"}
           </button>
         )}
       </div>

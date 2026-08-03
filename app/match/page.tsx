@@ -49,16 +49,16 @@ type Phase =
   | "noMatch";
 
 const INTEREST_OPTIONS = [
-  { id: "deep", emoji: "🧠", label: "Амьдрал, үзэл бодол" },
-  { id: "fun", emoji: "😂", label: "Зүгээр хөгжилтэй ярилцах" },
-  { id: "advice", emoji: "📚", label: "Санал зөвлөгөө авах" },
-  { id: "gaming", emoji: "🎮", label: "Тоглоомын тухай" },
-  { id: "tech", emoji: "💻", label: "IT, AI талаар" },
-  { id: "movies", emoji: "🎬", label: "Кино, цуврал" },
-  { id: "music", emoji: "🎵", label: "Дуу хөгжим" },
+  { id: "gaming", emoji: "🎮", label: "Тоглоом" },
+  { id: "music", emoji: "🎵", label: "Хөгжим" },
+  { id: "books", emoji: "📚", label: "Ном" },
+  { id: "movies", emoji: "🎬", label: "Кино" },
+  { id: "sports", emoji: "⚽", label: "Спорт" },
+  { id: "food", emoji: "🍜", label: "Хоол" },
+  { id: "travel", emoji: "✈️", label: "Аялал" },
   { id: "art", emoji: "🎨", label: "Урлаг" },
-  { id: "travel", emoji: "✈️", label: "Аяллын тухай" },
-  { id: "animals", emoji: "🐾", label: "Амьтны талаар" },
+  { id: "tech", emoji: "💻", label: "Технологи" },
+  { id: "animals", emoji: "🐾", label: "Амьтад" },
 ] as const;
 
 type GenderPreference = "any" | "male" | "female";
@@ -149,6 +149,7 @@ function ActionChip({
   );
 }
 
+/** Toggleable interest chip used on the pre-search "who to talk to" step. */
 function InterestChip({
   emoji,
   label,
@@ -244,6 +245,31 @@ export default function MatchPage() {
   const theirQuizAnswers = messages.find(
     (m) => m.from === "stranger" && m.text.startsWith(QUIZ_ANSWER_MARKER),
   );
+
+  const [dismissedDuelRoundId, setDismissedDuelRoundId] = useState<
+    string | null
+  >(null);
+  const [dismissedQuizMessageId, setDismissedQuizMessageId] = useState<
+    string | null
+  >(null);
+
+  // A round the partner just started (nobody has moved yet) that I
+  // haven't opened myself — shown as an inline invite instead of relying
+  // on the partner silently having the modal open on their end already.
+  const duelInvitePending =
+    !!duelRound &&
+    !showDuel &&
+    !duelRound.myMove &&
+    !duelRound.theirMove &&
+    duelRound.roundId !== dismissedDuelRoundId;
+
+  // The partner finished the compatibility quiz but I haven't opened /
+  // answered it yet — same idea.
+  const quizInvitePending =
+    !!theirQuizAnswers &&
+    !myQuizAnswers &&
+    !showQuiz &&
+    theirQuizAnswers.id !== dismissedQuizMessageId;
 
   const selectedInterestTags = INTEREST_OPTIONS.filter((o) =>
     selectedInterests.includes(o.id),
@@ -368,6 +394,8 @@ export default function MatchPage() {
     hasStarted.current = false;
     friendAddedRef.current = false;
     setPhase("searching");
+    // NOTE: assumes useMatchmaking's startSearch accepts an optional second
+    // argument for the gender filter — update the hook's signature if not.
     startSearch(selectedInterestTags, genderPreference);
     hasStarted.current = true;
   }
@@ -422,7 +450,7 @@ export default function MatchPage() {
 
       {phase === "selectType" && (
         <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
-          {/* <span className="text-3xl">🎯</span> */}
+          <span className="text-3xl">🎯</span>
           <h2 className="mt-2 font-display text-lg font-semibold">
             {t.interestTitle}
           </h2>
@@ -528,6 +556,9 @@ export default function MatchPage() {
               : undefined
           }
         >
+          {/* Header — exactly two flex groups (identity | actions), each
+              with its own gap, so nothing can ever collide regardless of
+              how narrow the screen is. Identity truncates first. */}
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
@@ -604,6 +635,52 @@ export default function MatchPage() {
             {partnerTyping && <TypingIndicator />}
           </div>
 
+          {duelInvitePending && (
+            <div className="mx-3 mb-2 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/10 px-3.5 py-2.5">
+              <span className="text-xl">⚔️</span>
+              <p className="flex-1 text-xs text-foreground">
+                {t.duelInviteText}
+              </p>
+              <button
+                onClick={() => setDismissedDuelRoundId(duelRound!.roundId)}
+                className="rounded-full px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
+              >
+                {t.inviteDecline}
+              </button>
+              <button
+                onClick={() => setShowDuel(true)}
+                className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {t.inviteAccept}
+              </button>
+            </div>
+          )}
+
+          {quizInvitePending && (
+            <div className="mx-3 mb-2 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/10 px-3.5 py-2.5">
+              <span className="text-xl">💫</span>
+              <p className="flex-1 text-xs text-foreground">
+                {t.quizInviteText}
+              </p>
+              <button
+                onClick={() => setDismissedQuizMessageId(theirQuizAnswers!.id)}
+                className="rounded-full px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
+              >
+                {t.inviteDecline}
+              </button>
+              <button
+                onClick={() => setShowQuiz(true)}
+                className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {t.inviteAccept}
+              </button>
+            </div>
+          )}
+
+          {/* Quick actions — every icon-based control lives in this one
+              scrollable row now (games, extras, and reactions), styled
+              identically, instead of being split between the header and
+              here. Edge fades hint that it scrolls. */}
           <div className="relative border-t border-border">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
