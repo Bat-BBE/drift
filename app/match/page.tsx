@@ -422,7 +422,7 @@ export default function MatchPage() {
 
       {phase === "selectType" && (
         <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
-          <span className="text-3xl">🎯</span>
+          {/* <span className="text-3xl">🎯</span> */}
           <h2 className="mt-2 font-display text-lg font-semibold">
             {t.interestTitle}
           </h2>
@@ -604,10 +604,6 @@ export default function MatchPage() {
             {partnerTyping && <TypingIndicator />}
           </div>
 
-          {/* Quick actions — every icon-based control lives in this one
-              scrollable row now (games, extras, and reactions), styled
-              identically, instead of being split between the header and
-              here. Edge fades hint that it scrolls. */}
           <div className="relative border-t border-border">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />

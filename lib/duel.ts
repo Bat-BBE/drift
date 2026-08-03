@@ -6,7 +6,7 @@ export type DuelResult = "win" | "lose" | "draw";
 
 export const DUEL_MOVES: { id: DuelMove; emoji: string; label: string }[] = [
   { id: "rock", emoji: "🪨", label: "Чулуу" },
-  { id: "paper", emoji: "📄", label: "Даавуу" },
+  { id: "paper", emoji: "📜", label: "Даавуу" },
   { id: "scissors", emoji: "✂️", label: "Хайч" },
 ];
 
