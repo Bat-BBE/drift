@@ -119,6 +119,8 @@ const dict = {
 
     quizButton: "S vs F",
 
+    you: "Та",
+
     send: "Илгээх",
 
     leave: "Яриаг дуусгах",
@@ -195,6 +197,8 @@ const dict = {
     interestStartAny: "Start chatting",
     interestStartWithCount: (n: number) =>
       `Search with ${n} interest${n > 1 ? "s" : ""}`,
+
+    you: "You",
 
     beforeContinue: "Before you continue",
 

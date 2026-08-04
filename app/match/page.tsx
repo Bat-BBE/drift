@@ -9,6 +9,8 @@ import { RateSheet } from "@/components/match/RateSheet";
 import { ReportSheet } from "@/components/match/ReportSheet";
 import { TopControls } from "@/components/shared/TopControls";
 import { ChatBubble } from "@/components/chat/ChatBubble";
+import type { Message } from "@/components/chat/ChatBubble";
+import { MessageActionSheet } from "@/components/chat/MessageActionSheet";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { Avatar } from "@/components/shared/Avatar";
 import { getAvatar } from "@/lib/avatars";
@@ -149,7 +151,6 @@ function ActionChip({
   );
 }
 
-/** Toggleable interest chip used on the pre-search "who to talk to" step. */
 function InterestChip({
   emoji,
   label,
@@ -211,17 +212,25 @@ export default function MatchPage() {
   } = useMatchmaking(userId);
   const {
     messages,
+    reactions,
     partnerTyping,
     partnerDisconnected,
     partnerLastReadAt,
     messageError,
     sendMessage,
+    deleteMessage,
+    toggleReaction,
     notifyTyping,
     leaveSession,
     reportSession,
     rateSession,
     deleteSession,
   } = useChatSession(session?.id ?? null, userId, session?.partnerId ?? null);
+
+  const [replyTarget, setReplyTarget] = useState<Message | null>(null);
+  const [actionSheetMessage, setActionSheetMessage] = useState<Message | null>(
+    null,
+  );
 
   const [phase, setPhase] = useState<Phase>("selectType");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -253,9 +262,6 @@ export default function MatchPage() {
     string | null
   >(null);
 
-  // A round the partner just started (nobody has moved yet) that I
-  // haven't opened myself — shown as an inline invite instead of relying
-  // on the partner silently having the modal open on their end already.
   const duelInvitePending =
     !!duelRound &&
     !showDuel &&
@@ -263,8 +269,6 @@ export default function MatchPage() {
     !duelRound.theirMove &&
     duelRound.roundId !== dismissedDuelRoundId;
 
-  // The partner finished the compatibility quiz but I haven't opened /
-  // answered it yet — same idea.
   const quizInvitePending =
     !!theirQuizAnswers &&
     !myQuizAnswers &&
@@ -367,8 +371,9 @@ export default function MatchPage() {
 
   async function handleSend() {
     if (!draft.trim()) return;
-    await sendMessage(draft);
+    await sendMessage(draft, replyTarget?.id ?? null);
     setDraft("");
+    setReplyTarget(null);
   }
 
   async function handleLeave() {
@@ -394,8 +399,6 @@ export default function MatchPage() {
     hasStarted.current = false;
     friendAddedRef.current = false;
     setPhase("searching");
-    // NOTE: assumes useMatchmaking's startSearch accepts an optional second
-    // argument for the gender filter — update the hook's signature if not.
     startSearch(selectedInterestTags, genderPreference);
     hasStarted.current = true;
   }
@@ -556,9 +559,6 @@ export default function MatchPage() {
               : undefined
           }
         >
-          {/* Header — exactly two flex groups (identity | actions), each
-              with its own gap, so nothing can ever collide regardless of
-              how narrow the screen is. Identity truncates first. */}
           <div className="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
               <span className="relative shrink-0">
@@ -630,10 +630,50 @@ export default function MatchPage() {
                 avatarId={
                   m.from === "me" ? (userId ?? "me") : session.partnerId
                 }
+                reactions={reactions[m.id] ?? []}
+                myUserId={userId}
+                onToggleReaction={(emoji) => toggleReaction(m.id, emoji)}
+                replyTo={
+                  m.replyToId
+                    ? (messages.find((x) => x.id === m.replyToId) ?? null)
+                    : null
+                }
+                onLongPress={() => setActionSheetMessage(m)}
               />
             ))}
             {partnerTyping && <TypingIndicator />}
           </div>
+
+          {replyTarget && (
+            <div className="mx-3 mb-2 flex items-center gap-2 rounded-xl border border-border bg-surface2/60 px-3 py-2">
+              <div className="min-w-0 flex-1 border-l-2 border-brand pl-2">
+                <p className="text-[11px] font-medium text-brand">
+                  {replyTarget.from === "me" ? t.you : t.stranger}
+                </p>
+                <p className="truncate text-xs text-muted">
+                  {replyTarget.text}
+                </p>
+              </div>
+              <button
+                onClick={() => setReplyTarget(null)}
+                aria-label={t.cancel}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {actionSheetMessage && (
+            <MessageActionSheet
+              message={actionSheetMessage}
+              isMine={actionSheetMessage.from === "me"}
+              onReact={(emoji) => toggleReaction(actionSheetMessage.id, emoji)}
+              onReply={() => setReplyTarget(actionSheetMessage)}
+              onDelete={() => deleteMessage(actionSheetMessage.id)}
+              onClose={() => setActionSheetMessage(null)}
+            />
+          )}
 
           {duelInvitePending && (
             <div className="mx-3 mb-2 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/10 px-3.5 py-2.5">
@@ -677,10 +717,6 @@ export default function MatchPage() {
             </div>
           )}
 
-          {/* Quick actions — every icon-based control lives in this one
-              scrollable row now (games, extras, and reactions), styled
-              identically, instead of being split between the header and
-              here. Edge fades hint that it scrolls. */}
           <div className="relative border-t border-border">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />

@@ -5,12 +5,39 @@ import { supabase } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { Message } from "@/components/chat/ChatBubble";
 
+export interface MessageReaction {
+  emoji: string;
+  userIds: string[];
+}
+
+function aggregateReactions(
+  rows: { message_id: string; user_id: string; emoji: string }[],
+): Record<string, MessageReaction[]> {
+  const byMessage: Record<string, Record<string, string[]>> = {};
+  for (const row of rows) {
+    byMessage[row.message_id] ??= {};
+    byMessage[row.message_id][row.emoji] ??= [];
+    byMessage[row.message_id][row.emoji].push(row.user_id);
+  }
+  const result: Record<string, MessageReaction[]> = {};
+  for (const [messageId, byEmoji] of Object.entries(byMessage)) {
+    result[messageId] = Object.entries(byEmoji).map(([emoji, userIds]) => ({
+      emoji,
+      userIds,
+    }));
+  }
+  return result;
+}
+
 export function useChatSession(
   sessionId: string | null,
   userId: string | null,
   partnerId: string | null,
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [reactions, setReactions] = useState<Record<string, MessageReaction[]>>(
+    {},
+  );
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
   const [partnerLastReadAt, setPartnerLastReadAt] = useState(0);
@@ -38,8 +65,20 @@ export function useChatSession(
             from: m.sender_id === uid ? "me" : "stranger",
             text: m.content,
             sentAt: new Date(m.sent_at).getTime(),
+            flagged: m.flagged,
+            flagReason: m.flag_reason as "keyword" | "link" | null,
+            replyToId: m.reply_to_id as string | null,
           })),
         );
+      }
+
+      const { data: reactionRows } = await supabase
+        .from("message_reactions")
+        .select("message_id, user_id, emoji")
+        .eq("session_id", sid);
+
+      if (!cancelled && reactionRows) {
+        setReactions(aggregateReactions(reactionRows));
       }
     }
     init();
@@ -67,9 +106,43 @@ export function useChatSession(
                 from: m.sender_id === uid ? "me" : "stranger",
                 text: m.content,
                 sentAt: new Date(m.sent_at).getTime(),
+                flagged: m.flagged,
+                flagReason: m.flag_reason as "keyword" | "link" | null,
+                replyToId: m.reply_to_id as string | null,
               },
             ];
           });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "messages",
+          filter: `session_id=eq.${sid}`,
+        },
+        (payload) => {
+          const old = payload.old as any;
+          setMessages((prev) => prev.filter((m) => m.id !== old.id));
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "message_reactions",
+          filter: `session_id=eq.${sid}`,
+        },
+        async () => {
+          const { data: reactionRows } = await supabase
+            .from("message_reactions")
+            .select("message_id, user_id, emoji")
+            .eq("session_id", sid);
+          if (!cancelled && reactionRows) {
+            setReactions(aggregateReactions(reactionRows));
+          }
         },
       )
       .on(
@@ -132,12 +205,13 @@ export function useChatSession(
   }, [messages.length, userId]);
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, replyToId?: string | null) => {
       if (!sessionId || !userId || !content.trim()) return;
       const { error } = await supabase.from("messages").insert({
         session_id: sessionId,
         sender_id: userId,
         content: content.trim(),
+        reply_to_id: replyToId ?? null,
       });
       if (error) {
         if (error.message.includes("rate_limited")) {
@@ -152,6 +226,39 @@ export function useChatSession(
       }
     },
     [sessionId, userId],
+  );
+
+  const deleteMessage = useCallback(async (messageId: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    await supabase.from("messages").delete().eq("id", messageId);
+  }, []);
+
+  const toggleReaction = useCallback(
+    async (messageId: string, emoji: string) => {
+      if (!sessionId || !userId) return;
+      const mine = reactions[messageId]?.find((r) =>
+        r.userIds.includes(userId),
+      );
+
+      if (mine && mine.emoji === emoji) {
+        await supabase
+          .from("message_reactions")
+          .delete()
+          .eq("message_id", messageId)
+          .eq("user_id", userId);
+      } else {
+        await supabase.from("message_reactions").upsert(
+          {
+            message_id: messageId,
+            session_id: sessionId,
+            user_id: userId,
+            emoji,
+          },
+          { onConflict: "message_id,user_id" },
+        );
+      }
+    },
+    [sessionId, userId, reactions],
   );
 
   const notifyTyping = useCallback(() => {
@@ -217,11 +324,14 @@ export function useChatSession(
 
   return {
     messages,
+    reactions,
     partnerTyping,
     partnerDisconnected,
     partnerLastReadAt,
     messageError,
     sendMessage,
+    deleteMessage,
+    toggleReaction,
     notifyTyping,
     leaveSession,
     reportSession,
