@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { TopControls } from "@/components/shared/TopControls";
 import { Avatar } from "@/components/shared/Avatar";
 import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
+import { useFriends } from "@/hooks/useFriends";
+import { useUnreadThreadsCount } from "@/hooks/useUnreadThreadsCount";
 import { useLocale } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import {
@@ -14,13 +16,36 @@ import {
   SettingsIcon,
 } from "@/components/nav/NavIcons";
 
-function useNavItems() {
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-bold text-white">
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
+
+function MobileNavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-white">
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
+
+function useNavItems(unreadCount: number, friendsCount: number) {
   const { t } = useLocale();
   return [
-    { href: "/", label: t.navHome, Icon: HomeIcon },
-    { href: "/chat", label: t.navChat, Icon: ChatIcon },
-    { href: "/friends", label: t.navFriends, Icon: FriendsIcon },
-    { href: "/settings", label: t.navSettings, Icon: SettingsIcon },
+    { href: "/", label: t.navHome, Icon: HomeIcon, badge: 0 },
+    { href: "/chat", label: t.navChat, Icon: ChatIcon, badge: unreadCount },
+    {
+      href: "/friends",
+      label: t.navFriends,
+      Icon: FriendsIcon,
+      badge: friendsCount,
+    },
+    { href: "/settings", label: t.navSettings, Icon: SettingsIcon, badge: 0 },
   ] as const;
 }
 
@@ -44,7 +69,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { locale, toggleLocale, t } = useLocale();
   const { theme, toggleTheme } = useTheme();
   const { userId } = useAnonymousAuth();
-  const navItems = useNavItems();
+  const { friends } = useFriends(userId);
+  const unreadCount = useUnreadThreadsCount(
+    userId,
+    friends.map((f) => f.otherId),
+  );
+  const navItems = useNavItems(unreadCount, friends.length);
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,7 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Logo />
 
         <nav className="mt-8 flex flex-col gap-1">
-          {navItems.map(({ href, label, Icon }) => {
+          {navItems.map(({ href, label, Icon, badge }) => {
             const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
             return (
               <Link
@@ -74,6 +104,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <Icon className="h-[18px] w-[18px] shrink-0" />
                 {label}
+                <NavBadge count={badge} />
               </Link>
             );
           })}
@@ -107,7 +138,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-border bg-surface1/95 backdrop-blur-xl lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        {navItems.map(({ href, label, Icon }) => {
+        {navItems.map(({ href, label, Icon, badge }) => {
           const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
           return (
             <Link
@@ -117,7 +148,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 active ? "text-brand" : "text-muted"
               }`}
             >
-              <Icon className="h-5 w-5" />
+              <span className="relative">
+                <Icon className="h-5 w-5" />
+                <MobileNavBadge count={badge} />
+              </span>
               {label}
             </Link>
           );

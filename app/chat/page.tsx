@@ -30,7 +30,7 @@ export default function ChatInboxPage() {
 
   return (
     <AppShell>
-      <main className="mx-auto min-h-screen max-w-2xl px-6 py-10 lg:px-10">
+      <main className="mx-auto min-h-screen max-w-2xl px-6 py-14 lg:px-12">
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-display text-2xl font-bold">
             {t.chatInboxTitle}
@@ -64,19 +64,36 @@ export default function ChatInboxPage() {
                 <Link
                   key={entry.friendId}
                   href={`/chat/${entry.friendId}`}
-                  className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface2/50"
+                  className={`flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface2/50 ${
+                    entry.unread ? "bg-brand/[0.04]" : ""
+                  }`}
                 >
-                  <Avatar
-                    id={entry.friendId}
-                    avatarIndex={entry.profile?.avatarIndex}
-                    size={44}
-                  />
+                  <span className="relative shrink-0">
+                    <Avatar
+                      id={entry.friendId}
+                      avatarIndex={entry.profile?.avatarIndex}
+                      size={44}
+                    />
+                    {entry.unread && (
+                      <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface1 bg-brand" />
+                    )}
+                  </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{name}</p>
-                    <p className="truncate text-xs text-muted">{preview}</p>
+                    <p
+                      className={`truncate text-sm ${entry.unread ? "font-bold text-foreground" : "font-medium"}`}
+                    >
+                      {name}
+                    </p>
+                    <p
+                      className={`truncate text-xs ${entry.unread ? "font-semibold text-foreground" : "text-muted"}`}
+                    >
+                      {preview}
+                    </p>
                   </div>
                   {entry.lastMessage && (
-                    <span className="shrink-0 font-mono text-[11px] text-muted">
+                    <span
+                      className={`shrink-0 font-mono text-[11px] ${entry.unread ? "font-bold text-brand" : "text-muted"}`}
+                    >
                       {formatTime(entry.lastMessage.sentAt, locale)}
                     </span>
                   )}

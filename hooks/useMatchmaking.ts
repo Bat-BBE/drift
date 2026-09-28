@@ -36,6 +36,14 @@ export function useMatchmaking(userId: string | null) {
       setStatus("searching");
       setSession(null);
 
+      // Anchors the "did the trigger already match us before our realtime
+      // channels finished subscribing" fallback below to *this* search
+      // attempt only — not to any earlier session that happens to still be
+      // dangling (e.g. a previous match nobody explicitly left). Without
+      // this, a fresh search could instantly "find" a stale leftover
+      // session instead of actually searching.
+      const searchStartedAt = new Date().toISOString();
+
       const { error } = await supabase.from("match_queue").upsert(
         {
           user_id: userId,
@@ -106,7 +114,7 @@ export function useMatchmaking(userId: string | null) {
         .select("*")
         .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
         .is("ended_at", null)
-        .gte("started_at", staleCutoff)
+        .gte("started_at", searchStartedAt)
         .order("started_at", { ascending: false })
         .limit(1)
         .maybeSingle();

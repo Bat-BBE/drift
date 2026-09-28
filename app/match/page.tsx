@@ -12,6 +12,7 @@ import { ChatBubble } from "@/components/chat/ChatBubble";
 import type { Message } from "@/components/chat/ChatBubble";
 import { MessageActionSheet } from "@/components/chat/MessageActionSheet";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
+import { ActionChip } from "@/components/chat/ActionChip";
 import { Avatar } from "@/components/shared/Avatar";
 import { getAvatar } from "@/lib/avatars";
 import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
@@ -30,6 +31,8 @@ import { CompatibilityQuiz } from "@/components/chat/CompatibilityQuiz";
 import { useStreak } from "@/hooks/useStreak";
 import { useFriends } from "@/hooks/useFriends";
 import { useRecentChats } from "@/hooks/useRecentChats";
+import { useKeyboardSafeViewport } from "@/hooks/useKeyboardSafeViewport";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { encodeFriendRequest, isFriendRequest } from "@/lib/friends";
 import {
   getLatestDuelRound,
@@ -74,35 +77,6 @@ const GENDER_OPTIONS: { id: GenderPreference; emoji: string; label: string }[] =
     { id: "female", emoji: "👩", label: "Эмэгтэй" },
   ];
 
-function useKeyboardSafeViewport(active: boolean) {
-  const [vv, setVv] = useState<{ height: number | null; top: number }>({
-    height: null,
-    top: 0,
-  });
-  useEffect(() => {
-    if (!active || typeof window === "undefined") return;
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-    function update() {
-      if (window.innerWidth < 640) {
-        setVv({ height: viewport!.height, top: viewport!.offsetTop });
-      } else {
-        setVv({ height: null, top: 0 });
-      }
-    }
-    update();
-    viewport.addEventListener("resize", update);
-    viewport.addEventListener("scroll", update);
-    window.addEventListener("resize", update);
-    return () => {
-      viewport.removeEventListener("resize", update);
-      viewport.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [active]);
-  return vv;
-}
-
 function IconAction({
   icon,
   label,
@@ -126,29 +100,6 @@ function IconAction({
       }`}
     >
       {icon}
-    </button>
-  );
-}
-
-function ActionChip({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: string;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={label}
-      className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/25 bg-brand/10 px-3 text-xs font-medium text-foreground transition-colors hover:border-brand/50 hover:bg-brand/15 active:scale-95"
-    >
-      <span aria-hidden className="text-sm leading-none">
-        {icon}
-      </span>
-      <span>{label}</span>
     </button>
   );
 }
@@ -376,23 +327,7 @@ export default function MatchPage() {
     return () => clearTimeout(idleTimer);
   }, [phase, messages]);
 
-  useEffect(() => {
-    if (isChatFullBleed) {
-      const originalOverflow = document.body.style.overflow;
-      const originalOverscroll = document.body.style.overscrollBehavior;
-      const originalPosition = document.body.style.position;
-      document.body.style.overflow = "hidden";
-      document.body.style.overscrollBehavior = "none";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-      return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.overscrollBehavior = originalOverscroll;
-        document.body.style.position = originalPosition;
-        document.body.style.width = "";
-      };
-    }
-  }, [isChatFullBleed]);
+  useLockBodyScroll(isChatFullBleed);
 
   async function handleCancelSearch() {
     await cancelSearch();

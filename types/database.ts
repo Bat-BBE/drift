@@ -107,13 +107,30 @@ export interface Database {
           recipient_id: string;
           content: string;
           sent_at: string;
+          reply_to_id: string | null;
         };
         Insert: {
           sender_id: string;
           recipient_id: string;
           content: string;
+          reply_to_id?: string | null;
         };
         Update: never;
+      };
+      direct_message_reactions: {
+        Row: {
+          message_id: string;
+          user_id: string;
+          emoji: string;
+          created_at: string;
+        };
+        Insert: { message_id: string; user_id: string; emoji: string };
+        Update: never;
+      };
+      direct_message_reads: {
+        Row: { user_id: string; friend_id: string; last_read_at: string };
+        Insert: { user_id: string; friend_id: string; last_read_at?: string };
+        Update: { last_read_at: string };
       };
     };
   };

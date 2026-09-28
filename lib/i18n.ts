@@ -57,6 +57,8 @@ const dict = {
     friendsEmpty:
       "Одоохондоо найз алга. Ярилцлагадаа хоёулаа 🤝 дарвал энд гарч ирнэ.",
     friendSince: "Найз болсон",
+    removeFriendButton: "Хасах",
+    removeFriendConfirm: "Итгэлтэй байна уу?",
 
     notDating:
       "Энэ бол болзооны апп биш. Харин хүмүүсийг чөлөөтэй ярилцуулж, аюулгүй цахим орчинд шинэ харилцаа холбоо үүсгэх платформ юм.",
@@ -115,7 +117,7 @@ const dict = {
 
     duelInviteText: "Нөгөө Х-Ч-Д тоглохыг санал болголоо",
     quizInviteText: "Нөгөө хүн Soulmate vs Friendly асуулгыг бөглөсөн байна",
-    inviteAccept: "Тоглох",
+    inviteAccept: "Зөвшөөрөх",
     inviteDecline: "Татгалзах",
 
     quizButton: "S vs F",
@@ -150,8 +152,7 @@ const dict = {
     streakMilestoneHigh: "Легендар яриа боллоо! 🏆",
 
     replyThemLabel: "Тэр",
-    flaggedTooltip:
-      "Энэ мессеж линк эсвэл сэжигтэй агуулга агуулж болзошгүй",
+    flaggedTooltip: "Энэ мессеж линк эсвэл сэжигтэй агуулга агуулж болзошгүй",
 
     messageReply: "Хариулах",
     messageCopy: "Хуулах",
@@ -196,7 +197,7 @@ const dict = {
     chatInboxTitle: "Чат",
     startRandomChatCta: "Random chat эхлүүлэх",
     chatInboxEmpty:
-      "Одоохондоо ярилцлага алга. Санамсаргүй хүнтэй ярилцаад, 🤝 дарж найз болвол энд гарч ирнэ.",
+      "Одоохондоо найз алга. Санамсаргүй хүнтэй ярилцаад, 🤝 дарж найз болвол энд гарч ирнэ.",
     sayHiPreview: "Мэндлээрэй 👋",
     youPrefix: "Та:",
     messagePlaceholder: "Мессеж бичих...",
@@ -370,6 +371,8 @@ const dict = {
       "You don't have any friends yet. If both of you tap 🤝 during a conversation, they'll appear here.",
 
     friendSince: "Friends since",
+    removeFriendButton: "Remove",
+    removeFriendConfirm: "Are you sure?",
 
     notDating:
       "This isn't a dating app. It's a safe place where people can meet, have real conversations, and build genuine connections.",
@@ -645,7 +648,11 @@ function getServerSnapshot(): Locale {
 }
 
 export function useLocale() {
-  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const locale = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   const setLocale = useCallback((next: Locale) => {
     setGlobalLocale(next);

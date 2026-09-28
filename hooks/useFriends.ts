@@ -57,5 +57,26 @@ export function useFriends(userId: string | null) {
     [userId, refresh],
   );
 
-  return { friends, loading, addFriend, refresh };
+  const removeFriend = useCallback(
+    async (otherId: string) => {
+      if (!userId) return;
+      setFriends((prev) => prev.filter((f) => f.otherId !== otherId));
+      // Deletes both perspective rows (each side inserted their own when
+      // the friendship was confirmed), so this severs it for both people
+      // at once, not just locally.
+      const { error } = await supabase
+        .from("friend_links")
+        .delete()
+        .or(
+          `and(user_a_id.eq.${userId},user_b_id.eq.${otherId}),and(user_a_id.eq.${otherId},user_b_id.eq.${userId})`,
+        );
+      if (error) {
+        console.error("[drift] failed to remove friend:", error.message);
+        refresh();
+      }
+    },
+    [userId, refresh],
+  );
+
+  return { friends, loading, addFriend, removeFriend, refresh };
 }
