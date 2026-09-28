@@ -40,7 +40,6 @@ import {
   decodeQuizAnswers,
   encodeQuizAnswers,
   QUIZ_ANSWER_MARKER,
-  type QuizAnswers,
 } from "@/lib/compatibility";
 
 type Phase =
@@ -144,12 +143,12 @@ function ActionChip({
     <button
       onClick={onClick}
       title={label}
-      className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface2 px-3 text-xs text-muted transition-colors hover:text-foreground active:scale-95"
+      className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/25 bg-brand/10 px-3 text-xs font-medium text-foreground transition-colors hover:border-brand/50 hover:bg-brand/15 active:scale-95"
     >
       <span aria-hidden className="text-sm leading-none">
         {icon}
       </span>
-      <span className="hidden sm:inline">{label}</span>
+      <span>{label}</span>
     </button>
   );
 }
@@ -248,6 +247,7 @@ export default function MatchPage() {
   const friendAddedRef = useRef(false);
   const [showDuel, setShowDuel] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
+  const lastIcebreakerRef = useRef<string | null>(null);
   const { streak, milestone } = useStreak(messages);
   const duelRound = getLatestDuelRound(messages);
   const { addFriend } = useFriends(userId);
@@ -261,6 +261,9 @@ export default function MatchPage() {
     (m) => m.from === "stranger" && isFriendRequest(m.text),
   );
   const bothWantFriends = myFriendRequestSent && theirFriendRequestSent;
+  const [friendRequestDismissed, setFriendRequestDismissed] = useState(false);
+  const friendRequestPending =
+    theirFriendRequestSent && !myFriendRequestSent && !friendRequestDismissed;
 
   const myQuizAnswers = messages.find(
     (m) => m.from === "me" && m.text.startsWith(QUIZ_ANSWER_MARKER),
@@ -425,6 +428,7 @@ export default function MatchPage() {
     resetSession();
     hasStarted.current = false;
     friendAddedRef.current = false;
+    setFriendRequestDismissed(false);
     setPhase("searching");
     startSearch(selectedInterestTags, genderPreference);
     hasStarted.current = true;
@@ -443,8 +447,20 @@ export default function MatchPage() {
   }
 
   function handleStartDuel() {
+    setShowQuiz(false);
     sendMessage(encodeDuelStart(crypto.randomUUID()));
     setShowDuel(true);
+  }
+
+  function handleOpenQuiz() {
+    setShowDuel(false);
+    setShowQuiz(true);
+  }
+
+  function handleSendIcebreaker() {
+    const question = randomIcebreaker(lastIcebreakerRef.current ?? undefined);
+    lastIcebreakerRef.current = question;
+    sendMessage(question);
   }
 
   if (!ready) {
@@ -463,20 +479,14 @@ export default function MatchPage() {
           : "justify-center px-4 py-8"
       }`}
     >
-      <div
-        className={
-          isChatFullBleed
-            ? "w-full px-3 pt-3 sm:w-auto sm:px-0 sm:pt-0"
-            : undefined
-        }
-      >
+      {!isChatFullBleed && (
         <TopControls
           locale={locale}
           onToggleLocale={toggleLocale}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
-      </div>
+      )}
 
       {phase === "selectType" && (
         <div className="w-full max-w-md animate-quiz-fade-in rounded-2xl border border-border bg-surface1/90 p-6 text-center backdrop-blur-xl">
@@ -653,7 +663,6 @@ export default function MatchPage() {
                 message={m}
                 showTime={i === messages.length - 1}
                 seen={m.from === "me" && partnerLastReadAt >= m.sentAt}
-                seenLabel={t.seen}
                 avatarId={
                   m.from === "me" ? (userId ?? "me") : session.partnerId
                 }
@@ -715,7 +724,10 @@ export default function MatchPage() {
                 {t.inviteDecline}
               </button>
               <button
-                onClick={() => setShowDuel(true)}
+                onClick={() => {
+                  setShowQuiz(false);
+                  setShowDuel(true);
+                }}
                 className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
               >
                 {t.inviteAccept}
@@ -736,7 +748,28 @@ export default function MatchPage() {
                 {t.inviteDecline}
               </button>
               <button
-                onClick={() => setShowQuiz(true)}
+                onClick={handleOpenQuiz}
+                className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {t.inviteAccept}
+              </button>
+            </div>
+          )}
+
+          {friendRequestPending && (
+            <div className="mx-3 mb-2 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/10 px-3.5 py-2.5">
+              <span className="text-xl">🤝</span>
+              <p className="flex-1 text-xs text-foreground">
+                {t.friendRequestPill}
+              </p>
+              <button
+                onClick={() => setFriendRequestDismissed(true)}
+                className="rounded-full px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
+              >
+                {t.inviteDecline}
+              </button>
+              <button
+                onClick={() => sendMessage(encodeFriendRequest())}
                 className="shrink-0 rounded-full bg-gradient-to-r from-brand to-brand-pink px-3 py-1.5 text-xs font-semibold text-white"
               >
                 {t.inviteAccept}
@@ -750,56 +783,65 @@ export default function MatchPage() {
             </div>
           )}
 
-          <div className="relative border-t border-border">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
-            <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2 [&::-webkit-scrollbar]:hidden">
-              <ActionChip
-                icon="🔮"
-                label={t.zodiacButton}
-                onClick={() => setShowZodiacPicker(true)}
-              />
-              <ActionChip
-                icon="⚔️"
-                label={t.duelButton}
-                onClick={handleStartDuel}
-              />
-              <ActionChip
-                icon="💫"
-                label={t.quizButton}
-                onClick={() => setShowQuiz(true)}
-              />
-              <ActionChip
-                icon="🎲"
-                label={t.icebreaker}
-                onClick={() => sendMessage(randomIcebreaker())}
-              />
-              {!bothWantFriends &&
-                (myFriendRequestSent ? (
-                  <span className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-surface2 px-3 text-xs text-muted">
-                    🤝 {t.friendRequestSent}
-                  </span>
-                ) : (
-                  <ActionChip
-                    icon="🤝"
-                    label={t.friendChip}
-                    onClick={() => sendMessage(encodeFriendRequest())}
-                  />
+          <div className="border-t border-border">
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
+              <div className="flex items-center gap-1.5 overflow-x-auto px-3 pt-2 [&::-webkit-scrollbar]:hidden">
+                <ActionChip
+                  icon="🔮"
+                  label={t.zodiacButton}
+                  onClick={() => setShowZodiacPicker(true)}
+                />
+                <ActionChip
+                  icon="⚔️"
+                  label={t.duelButton}
+                  onClick={handleStartDuel}
+                />
+                <ActionChip
+                  icon="💫"
+                  label={t.quizButton}
+                  onClick={handleOpenQuiz}
+                />
+                <ActionChip
+                  icon="🎲"
+                  label={t.icebreaker}
+                  onClick={handleSendIcebreaker}
+                />
+                {!bothWantFriends &&
+                  !friendRequestPending &&
+                  (myFriendRequestSent ? (
+                    <span className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-surface2 px-3 text-xs text-muted">
+                      🤝 {t.friendRequestSent}
+                    </span>
+                  ) : (
+                    <ActionChip
+                      icon="🤝"
+                      label={t.friendChip}
+                      onClick={() => sendMessage(encodeFriendRequest())}
+                    />
+                  ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
+              <div className="flex items-center gap-1 overflow-x-auto px-3 py-1.5 [&::-webkit-scrollbar]:hidden">
+                <span className="mr-1 shrink-0 text-[10px] font-medium uppercase tracking-wide text-muted/70">
+                  {t.quickReactionsLabel}
+                </span>
+                {QUICK_REACTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => sendMessage(emoji)}
+                    aria-label={emoji}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base opacity-80 transition-transform duration-fast hover:scale-125 hover:bg-surface2 hover:opacity-100 active:scale-95"
+                  >
+                    {emoji}
+                  </button>
                 ))}
-              <span
-                className="mx-0.5 h-5 w-px shrink-0 bg-border"
-                aria-hidden
-              />
-              {QUICK_REACTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => sendMessage(emoji)}
-                  aria-label={emoji}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg transition-transform duration-fast hover:scale-125 hover:bg-surface2 active:scale-95"
-                >
-                  {emoji}
-                </button>
-              ))}
+              </div>
             </div>
           </div>
 

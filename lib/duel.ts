@@ -4,10 +4,10 @@ export const DUEL_MOVE_MARKER = "__DRIFT_DUEL_MOVE__::";
 export type DuelMove = "rock" | "paper" | "scissors";
 export type DuelResult = "win" | "lose" | "draw";
 
-export const DUEL_MOVES: { id: DuelMove; emoji: string; label: string }[] = [
-  { id: "rock", emoji: "🪨", label: "Чулуу" },
-  { id: "paper", emoji: "📜", label: "Даавуу" },
-  { id: "scissors", emoji: "✂️", label: "Хайч" },
+export const DUEL_MOVES: { id: DuelMove; emoji: string }[] = [
+  { id: "rock", emoji: "🪨" },
+  { id: "paper", emoji: "📜" },
+  { id: "scissors", emoji: "✂️" },
 ];
 
 const BEATS: Record<DuelMove, DuelMove> = {

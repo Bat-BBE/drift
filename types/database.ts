@@ -85,6 +85,36 @@ export interface Database {
         Insert: { user_a_id: string; user_b_id: string };
         Update: never;
       };
+      public_profiles: {
+        Row: {
+          id: string;
+          nickname: string;
+          avatar_id: number;
+          updated_at: string;
+        };
+        Insert: { id: string; nickname: string; avatar_id: number };
+        Update: Partial<
+          Pick<
+            Database["public"]["Tables"]["public_profiles"]["Row"],
+            "nickname" | "avatar_id"
+          >
+        >;
+      };
+      direct_messages: {
+        Row: {
+          id: string;
+          sender_id: string;
+          recipient_id: string;
+          content: string;
+          sent_at: string;
+        };
+        Insert: {
+          sender_id: string;
+          recipient_id: string;
+          content: string;
+        };
+        Update: never;
+      };
     };
   };
 }

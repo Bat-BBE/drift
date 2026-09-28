@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useLocale } from "@/lib/i18n";
 import {
   QUIZ_QUESTIONS,
   computeCompatibility,
@@ -60,19 +61,25 @@ function ProgressDots({ total, current }: { total: number; current: number }) {
   );
 }
 
-function WaitingIndicator() {
+function WaitingIndicator({
+  answeredText,
+  waitingText,
+}: {
+  answeredText: string;
+  waitingText: string;
+}) {
   return (
     <div className="mt-5 flex flex-col items-center gap-3">
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success/15 animate-quiz-check-pop">
         <span className="text-lg text-success">✓</span>
       </div>
-      <p className="text-sm text-muted">Хариулт бүртгэгдлээ</p>
+      <p className="text-sm text-muted">{answeredText}</p>
       <div className="flex items-center gap-1.5" aria-hidden="true">
         <span className="h-2 w-2 rounded-full bg-brand animate-quiz-dot [animation-delay:0ms]" />
         <span className="h-2 w-2 rounded-full bg-brand-cyan animate-quiz-dot [animation-delay:160ms]" />
         <span className="h-2 w-2 rounded-full bg-brand-pink animate-quiz-dot [animation-delay:320ms]" />
       </div>
-      <p className="text-xs text-muted">Нөгөө хүнийг хүлээж байна...</p>
+      <p className="text-xs text-muted">{waitingText}</p>
     </div>
   );
 }
@@ -88,6 +95,7 @@ export function CompatibilityQuiz({
   onAnswer: (answers: QuizAnswers) => void;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<QuizAnswers>({});
   const [locallySubmitted, setLocallySubmitted] = useState(false);
@@ -118,24 +126,18 @@ export function CompatibilityQuiz({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="relative w-full max-w-sm animate-quiz-sheet-in rounded-2xl border border-border bg-surface1 p-5 text-center shadow-[0_20px_60px_rgba(124,92,255,0.2)]"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <div className="relative w-full max-w-sm animate-quiz-sheet-in rounded-2xl border border-border bg-surface1 p-5 text-center shadow-[0_20px_60px_rgba(124,92,255,0.2)]">
         <button
           onClick={onClose}
-          aria-label="Хаах"
+          aria-label={t.close}
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface2 hover:text-foreground"
         >
           ✕
         </button>
 
         <h3 className="font-display text-lg font-semibold">
-          💫 Soulmate vs Friendly
+          {t.quizModalTitle}
         </h3>
 
         {!iAnswered && (
@@ -178,12 +180,15 @@ export function CompatibilityQuiz({
 
         {iAnswered && !bothAnswered && (
           <>
-            <WaitingIndicator />
+            <WaitingIndicator
+              answeredText={t.quizAnsweredText}
+              waitingText={t.quizWaitingPartner}
+            />
             <button
               onClick={onClose}
               className="mt-4 rounded-full px-3 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
             >
-              Гарах
+              {t.duelExit}
             </button>
           </>
         )}
@@ -193,18 +198,18 @@ export function CompatibilityQuiz({
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2 px-3 py-1 text-xs text-muted">
               {leadingIsSoulmate ? "💘" : "👯"}{" "}
               {leadingIsSoulmate
-                ? "Soulmate тал руу хазайлаа"
-                : "Friendly тал руу хазайлаа"}
+                ? t.quizLeaningSoulmate
+                : t.quizLeaningFriendly}
             </span>
 
             <ResultBar
-              label="💘 Soulmate"
+              label={t.quizResultSoulmateLabel}
               value={result.soulmate}
               color="var(--brand-pink, #ff6fa5)"
               delay={100}
             />
             <ResultBar
-              label="👯 Friendly"
+              label={t.quizResultFriendlyLabel}
               value={result.friendly}
               color="var(--brand-cyan, #4fd1ff)"
               delay={250}
@@ -215,7 +220,7 @@ export function CompatibilityQuiz({
               className="mt-5 w-full bg-gradient-to-r from-brand to-brand-pink"
               onClick={onClose}
             >
-              Хаах
+              {t.close}
             </Button>
           </div>
         )}
@@ -225,7 +230,7 @@ export function CompatibilityQuiz({
             onClick={onClose}
             className="mt-4 rounded-full px-3 py-1.5 text-xs text-muted transition-colors hover:text-foreground"
           >
-            Цуцлах
+            {t.cancel}
           </button>
         )}
       </div>

@@ -57,6 +57,11 @@ const ICEBREAKERS = [
   "Энэ асуултын дараа чи юу асуумаар байна? 🙂",
 ] as const;
 
-export function randomIcebreaker() {
-  return ICEBREAKERS[Math.floor(Math.random() * ICEBREAKERS.length)];
+export function randomIcebreaker(exclude?: string) {
+  if (ICEBREAKERS.length < 2) return ICEBREAKERS[0];
+  let pick: string;
+  do {
+    pick = ICEBREAKERS[Math.floor(Math.random() * ICEBREAKERS.length)];
+  } while (pick === exclude);
+  return pick;
 }

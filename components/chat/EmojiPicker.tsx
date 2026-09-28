@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n";
 
 const CATEGORIES: { id: string; icon: string; emojis: string[] }[] = [
   {
@@ -178,6 +179,7 @@ export function EmojiPicker({
   onPick: (emoji: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [activeCategory, setActiveCategory] = useState(0);
 
   return (
@@ -190,10 +192,10 @@ export function EmojiPicker({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <p className="text-sm font-semibold">Emoji сонгох</p>
+          <p className="text-sm font-semibold">{t.emojiPickerTitle}</p>
           <button
             onClick={onClose}
-            aria-label="Хаах"
+            aria-label={t.close}
             className="flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface2 hover:text-foreground"
           >
             ✕

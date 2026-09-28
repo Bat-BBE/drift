@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { findZodiac, getCompatibility } from "@/lib/zodiac";
+import { useLocale } from "@/lib/i18n";
 
 export function ZodiacMatchCard({
   mySign,
@@ -12,6 +13,7 @@ export function ZodiacMatchCard({
   partnerSign: string;
   onClose?: () => void;
 }) {
+  const { t } = useLocale();
   const [expanded, setExpanded] = useState(false);
   const me = findZodiac(mySign);
   const partner = findZodiac(partnerSign);
@@ -19,45 +21,49 @@ export function ZodiacMatchCard({
 
   if (!me || !partner) return null;
 
+  const timeLabel = (p: typeof me) =>
+    p.nightOwl
+      ? t.zodiacNightOwl
+      : p.morningPerson
+        ? t.zodiacMorningPerson
+        : t.zodiacAverage;
+
   const rows = [
-    { icon: "❤️", label: "Хайр", me: me.love, partner: partner.love },
+    { icon: "❤️", label: t.zodiacLoveLabel, me: me.love, partner: partner.love },
     {
       icon: "💬",
-      label: "Ярилцах хэв маяг",
+      label: t.zodiacChatStyleLabel,
       me: me.chatStyle,
       partner: partner.chatStyle,
     },
-    { icon: "🎮", label: "Hobby", me: me.hobby, partner: partner.hobby },
+    { icon: "🎮", label: t.zodiacHobbyLabel, me: me.hobby, partner: partner.hobby },
     {
       icon: "🎵",
-      label: "Дуртай хөгжим",
+      label: t.zodiacMusicLabel,
       me: me.music,
       partner: partner.music,
     },
     {
       icon: "😂",
-      label: "Хошин мэдрэмж",
+      label: t.zodiacHumorLabel,
       me: me.humor,
       partner: partner.humor,
     },
     {
       icon: me.nightOwl ? "🌙" : "☀️",
-      label: "Идэвхтэй цаг",
-      me: me.nightOwl
-        ? "Шөнийн хүн"
-        : me.morningPerson
-          ? "Өглөөний хүн"
-          : "Дунд зэрэг",
-      partner: partner.nightOwl
-        ? "Шөнийн хүн"
-        : partner.morningPerson
-          ? "Өглөөний хүн"
-          : "Дунд зэрэг",
+      label: t.zodiacActiveTimeLabel,
+      me: timeLabel(me),
+      partner: timeLabel(partner),
     },
-    { icon: "👻", label: "Red flag", me: me.redFlag, partner: partner.redFlag },
+    {
+      icon: "👻",
+      label: t.zodiacRedFlagLabel,
+      me: me.redFlag,
+      partner: partner.redFlag,
+    },
     {
       icon: "✅",
-      label: "Green flag",
+      label: t.zodiacGreenFlagLabel,
       me: me.greenFlag,
       partner: partner.greenFlag,
     },
@@ -66,19 +72,19 @@ export function ZodiacMatchCard({
   const scoreRows = [
     {
       icon: "📈",
-      label: "Dating score",
+      label: t.zodiacDatingScore,
       me: me.datingScore,
       partner: partner.datingScore,
     },
     {
       icon: "🤝",
-      label: "Friendship score",
+      label: t.zodiacFriendshipScore,
       me: me.friendshipScore,
       partner: partner.friendshipScore,
     },
     {
       icon: "❤️",
-      label: "Relationship score",
+      label: t.zodiacRelationshipScore,
       me: me.relationshipScore,
       partner: partner.relationshipScore,
     },
@@ -89,7 +95,7 @@ export function ZodiacMatchCard({
       {onClose && (
         <button
           onClick={onClose}
-          aria-label="Хаах"
+          aria-label={t.close}
           className="absolute right-2 top-2 rounded-full p-1.5 text-muted transition-colors hover:bg-surface1 hover:text-foreground active:opacity-70"
         >
           <svg
@@ -133,17 +139,17 @@ export function ZodiacMatchCard({
         onClick={() => setExpanded((v) => !v)}
         className="mx-auto mt-2 block px-2 py-1 text-xs text-muted underline underline-offset-2 hover:text-foreground active:opacity-70"
       >
-        {expanded ? "Хураах" : "Дэлгэрэнгүй харах"}
+        {expanded ? t.zodiacShowLess : t.zodiacShowMore}
       </button>
 
       {expanded && (
         <div className="mt-3 max-h-[45vh] space-y-2 overflow-y-auto overscroll-contain pr-0.5 sm:max-h-[50vh]">
           <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-surface2/95 px-1 py-1 text-[11px] font-medium text-muted backdrop-blur-sm">
             <span className="min-w-0 truncate">
-              Чи ({me.emoji} {me.name})
+              {t.zodiacYouLabel} ({me.emoji} {me.name})
             </span>
             <span className="min-w-0 truncate text-right">
-              Тэр хүн ({partner.emoji} {partner.name})
+              {t.zodiacThemLabel} ({partner.emoji} {partner.name})
             </span>
           </div>
 

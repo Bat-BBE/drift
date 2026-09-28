@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/nav/AppShell";
 import { Avatar } from "@/components/shared/Avatar";
+import { ProfileEditor } from "@/components/profile/ProfileEditor";
 import { getAvatar } from "@/lib/avatars";
 import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { useRecentChats } from "@/hooks/useRecentChats";
 import {
   getBlockedUsers,
@@ -60,11 +62,13 @@ function SegmentedButton<T extends string>({
 
 export default function SettingsPage() {
   const { userId } = useAnonymousAuth();
+  const { profile, saveProfile } = useProfile(userId);
   const { locale, setLocale, t } = useLocale();
   const { theme, toggleTheme } = useTheme();
   const { clearRecentChats } = useRecentChats();
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const [cleared, setCleared] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -92,16 +96,38 @@ export default function SettingsPage() {
           </h1>
           {userId && (
             <div className="mt-3 flex items-center gap-2.5">
-              <Avatar id={userId} size={38} />
+              <Avatar
+                id={userId}
+                avatarIndex={profile?.avatarIndex}
+                size={38}
+              />
               <div>
                 <p className="text-sm font-medium">
-                  {getAvatar(userId).name}
+                  {profile?.nickname ?? getAvatar(userId).name}
                 </p>
                 <p className="text-xs text-muted">{t.availableStatus}</p>
               </div>
             </div>
           )}
         </div>
+
+        <SectionCard
+          title={t.editNicknameTitle}
+          desc={t.editNicknameDesc}
+        >
+          {profile && (
+            <ProfileEditor
+              initialNickname={profile.nickname}
+              initialAvatarIndex={profile.avatarIndex}
+              saveLabel={profileSaved ? t.savedToast : t.saveButton}
+              onSave={(nickname, avatarIndex) => {
+                saveProfile({ nickname, avatarIndex });
+                setProfileSaved(true);
+                setTimeout(() => setProfileSaved(false), 1800);
+              }}
+            />
+          )}
+        </SectionCard>
 
         <SectionCard
           title={t.settingsAppearanceTitle}

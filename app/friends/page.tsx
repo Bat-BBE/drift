@@ -1,15 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { AppShell } from "@/components/nav/AppShell";
 import { Avatar } from "@/components/shared/Avatar";
 import { getAvatar } from "@/lib/avatars";
 import { useAnonymousAuth } from "@/hooks/useAnonymousAuth";
 import { useFriends } from "@/hooks/useFriends";
+import { usePublicProfiles } from "@/hooks/usePublicProfiles";
 import { useLocale } from "@/lib/i18n";
 
 export default function FriendsPage() {
   const { userId, ready } = useAnonymousAuth();
   const { friends, loading } = useFriends(userId);
+  const profiles = usePublicProfiles(friends.map((f) => f.otherId));
   const { t, locale } = useLocale();
 
   return (
@@ -31,17 +34,22 @@ export default function FriendsPage() {
             </p>
           ) : (
             friends.map((f) => {
-              const avatar = getAvatar(f.otherId);
+              const fallback = getAvatar(f.otherId);
+              const profile = profiles[f.otherId];
+              const name = profile?.nickname ?? fallback.name;
               return (
-                <div
+                <Link
                   key={f.otherId}
-                  className="flex items-center gap-3 px-4 py-3.5"
+                  href={`/chat/${f.otherId}`}
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface2/50"
                 >
-                  <Avatar id={f.otherId} size={42} />
+                  <Avatar
+                    id={f.otherId}
+                    avatarIndex={profile?.avatarIndex}
+                    size={42}
+                  />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {avatar.name}
-                    </p>
+                    <p className="truncate text-sm font-medium">{name}</p>
                     <p className="text-xs text-muted">
                       {t.friendSince}{" "}
                       {new Date(f.since).toLocaleDateString(
@@ -50,7 +58,10 @@ export default function FriendsPage() {
                       )}
                     </p>
                   </div>
-                </div>
+                  <span className="shrink-0 text-lg text-muted" aria-hidden>
+                    💬
+                  </span>
+                </Link>
               );
             })
           )}

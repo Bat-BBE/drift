@@ -1,6 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
+
+function milestoneMessage(
+  milestone: number,
+  t: ReturnType<typeof useLocale>["t"],
+): string {
+  if (milestone >= 100) return t.streakMilestoneHigh;
+  if (milestone >= 50) return t.streakMilestoneMid;
+  return t.streakMilestoneLow;
+}
 
 export function StreakBadge({
   streak,
@@ -9,6 +19,7 @@ export function StreakBadge({
   streak: number;
   milestone: number | null;
 }) {
+  const { t } = useLocale();
   if (streak < 2) return null;
 
   return (
@@ -25,9 +36,9 @@ export function StreakBadge({
       {milestone && (
         <div className="absolute left-1/2 top-full z-20 mt-2 w-max -translate-x-1/2 animate-bubble-in rounded-lg border border-border bg-surface1 px-3 py-2 text-center text-xs shadow-[0_8px_40px_rgba(124,92,255,0.15)]">
           <span className="font-semibold text-brand">
-            🔥 {milestone} streak!
+            🔥 {milestone} {t.streakMilestoneLabel}
           </span>
-          <p className="mt-0.5 text-muted">Сайхан яриа өрнөж байгаа бололтой</p>
+          <p className="mt-0.5 text-muted">{milestoneMessage(milestone, t)}</p>
         </div>
       )}
     </div>

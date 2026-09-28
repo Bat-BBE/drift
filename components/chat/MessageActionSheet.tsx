@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Message } from "@/components/chat/ChatBubble";
 import { EmojiPicker } from "@/components/chat/EmojiPicker";
+import { useLocale } from "@/lib/i18n";
 
 const QUICK_PICK = ["❤️", "😂", "👍", "😮", "😢", "🔥"];
 
@@ -21,6 +22,7 @@ export function MessageActionSheet({
   onDelete: () => void;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const [showFullPicker, setShowFullPicker] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -68,7 +70,7 @@ export function MessageActionSheet({
           ))}
           <button
             onClick={() => setShowFullPicker(true)}
-            aria-label="Бусад emoji"
+            aria-label={t.moreEmojiLabel}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-border text-lg text-muted transition-colors hover:bg-surface2 hover:text-foreground"
           >
             ➕
@@ -83,13 +85,14 @@ export function MessageActionSheet({
             }}
             className="flex items-center gap-3 border-b border-border bg-surface2/50 px-4 py-3 text-left text-sm transition-colors hover:bg-surface2"
           >
-            <span aria-hidden>↩️</span> Хариулах
+            <span aria-hidden>↩️</span> {t.messageReply}
           </button>
           <button
             onClick={handleCopy}
             className="flex items-center gap-3 border-b border-border bg-surface2/50 px-4 py-3 text-left text-sm transition-colors hover:bg-surface2"
           >
-            <span aria-hidden>📋</span> {copied ? "Хуулагдлаа ✓" : "Хуулах"}
+            <span aria-hidden>📋</span>{" "}
+            {copied ? t.messageCopied : t.messageCopy}
           </button>
           {isMine && (
             <button
@@ -99,7 +102,7 @@ export function MessageActionSheet({
               }}
               className="flex items-center gap-3 bg-surface2/50 px-4 py-3 text-left text-sm text-danger transition-colors hover:bg-danger/10"
             >
-              <span aria-hidden>🗑️</span> Устгах
+              <span aria-hidden>🗑️</span> {t.messageDelete}
             </button>
           )}
         </div>
@@ -108,7 +111,7 @@ export function MessageActionSheet({
           onClick={onClose}
           className="mt-3 w-full rounded-full py-2.5 text-center text-sm text-muted transition-colors hover:text-foreground"
         >
-          Цуцлах
+          {t.cancel}
         </button>
       </div>
     </div>

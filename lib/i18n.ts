@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export type Locale = "mn" | "en";
 
@@ -120,6 +120,87 @@ const dict = {
 
     quizButton: "S vs F",
 
+    close: "Хаах",
+
+    duelMoveRock: "Чулуу",
+    duelMovePaper: "Цаас",
+    duelMoveScissors: "Хайч",
+    duelGameTitle: "⚔️ Чулуу ~ Цаас ~ Хайч",
+    duelPickPrompt: "Сонголтоо хий",
+    duelWaitingText: "Сонголтоо хийлээ ✅ Нөгөө хүнийг хүлээж байна...",
+    duelWaitingHint: "Та хүлээхгүйгээр гарч, дараа нь буцаж орж болно.",
+    duelBothPickedText: "Хоёулаа сонгосон... 🥁",
+    duelResultWin: "🎉 Та яллаа!",
+    duelResultLose: "😅 Та хожигдлоо",
+    duelResultDraw: "🤝 Тэнцлээ",
+    duelRematch: "Дахин тоглох",
+    duelExit: "Гарах",
+
+    quizModalTitle: "💫 Soulmate vs Friendly",
+    quizAnsweredText: "Хариулт бүртгэгдлээ",
+    quizWaitingPartner: "Нөгөө хүнийг хүлээж байна...",
+    quizLeaningSoulmate: "Soulmate тал руу хазайлаа",
+    quizLeaningFriendly: "Friendly тал руу хазайлаа",
+    quizResultSoulmateLabel: "💘 Soulmate",
+    quizResultFriendlyLabel: "👯 Friendly",
+
+    streakMilestoneLabel: "streak!",
+    streakMilestoneLow: "Сайхан яриа өрнөж байна!",
+    streakMilestoneMid: "Энэ бол жинхэнэ дэс дараалал! 🔥",
+    streakMilestoneHigh: "Легендар яриа боллоо! 🏆",
+
+    replyThemLabel: "Тэр",
+    flaggedTooltip:
+      "Энэ мессеж линк эсвэл сэжигтэй агуулга агуулж болзошгүй",
+
+    messageReply: "Хариулах",
+    messageCopy: "Хуулах",
+    messageCopied: "Хуулагдлаа ✓",
+    messageDelete: "Устгах",
+    moreEmojiLabel: "Бусад emoji",
+    emojiPickerTitle: "Emoji сонгох",
+
+    zodiacLoveLabel: "Хайр",
+    zodiacChatStyleLabel: "Ярилцах хэв маяг",
+    zodiacHobbyLabel: "Хоббио",
+    zodiacMusicLabel: "Дуртай хөгжим",
+    zodiacHumorLabel: "Хошин мэдрэмж",
+    zodiacActiveTimeLabel: "Идэвхтэй цаг",
+    zodiacRedFlagLabel: "Red flag",
+    zodiacGreenFlagLabel: "Green flag",
+    zodiacNightOwl: "Шөнийн хүн",
+    zodiacMorningPerson: "Өглөөний хүн",
+    zodiacAverage: "Дунд зэрэг",
+    zodiacDatingScore: "Dating score",
+    zodiacFriendshipScore: "Friendship score",
+    zodiacRelationshipScore: "Relationship score",
+    zodiacYouLabel: "Чи",
+    zodiacThemLabel: "Тэр хүн",
+    zodiacShowMore: "Дэлгэрэнгүй харах",
+    zodiacShowLess: "Хураах",
+
+    quickReactionsLabel: "Хурдан хариу",
+
+    profileSetupTitle: "Өөрийгөө танилцуулаарай",
+    profileSetupSubtitle:
+      "Нэр, зурган дүрээ сонгоно уу. Энэ нь зөвхөн таны төхөөрөмж дээр хадгалагдана, найзууд тань үүнийг харах болно.",
+    nicknamePlaceholder: "Нэрээ бичих...",
+    nicknameRandomButton: "🎲 Санамсаргүй нэр",
+    chooseAvatarLabel: "Зурган дүрээ сонго",
+    profileContinueButton: "Үргэлжлүүлэх",
+    editNicknameTitle: "Нэр, зурган дүр",
+    editNicknameDesc: "Нэр болон зурган дүрээ хүссэн үедээ солиж болно.",
+    saveButton: "Хадгалах",
+    savedToast: "Хадгалагдлаа",
+
+    chatInboxTitle: "Чат",
+    startRandomChatCta: "Random chat эхлүүлэх",
+    chatInboxEmpty:
+      "Одоохондоо ярилцлага алга. Санамсаргүй хүнтэй ярилцаад, 🤝 дарж найз болвол энд гарч ирнэ.",
+    sayHiPreview: "Мэндлээрэй 👋",
+    youPrefix: "Та:",
+    messagePlaceholder: "Мессеж бичих...",
+
     you: "Та",
 
     send: "Илгээх",
@@ -209,7 +290,7 @@ const dict = {
     settingsLanguageLabel: "Хэл",
     settingsPrivacyTitle: "Нууцлал ба өгөгдөл",
     settingsPrivacyDesc:
-      "Ярианы мессежийг сервер дээр хэзээ ч хадгалдаггүй — room хаагдмагц бүрмөсөн устана. Доорх мэдээлэл зөвхөн энэ төхөөрөмж дээр л хадгалагдана.",
+      "Random chat-ын мессежийг сервер дээр хэзээ ч хадгалдаггүй — room хаагдмагц бүрмөсөн устана. Харин найзуудтайгаа бичсэн чат (Chat таб) жинхэнэ мессенжер шиг хадгалагдаж, дараа нь харагдана.",
     settingsBlockedTitle: "Блоклосон хэрэглэгчид",
     settingsBlockedEmpty: "Та хэн ч блоклоогүй байна.",
     settingsUnblock: "Блок цуцлах",
@@ -353,6 +434,86 @@ const dict = {
 
     quizButton: "S vs F",
 
+    close: "Close",
+
+    duelMoveRock: "Rock",
+    duelMovePaper: "Paper",
+    duelMoveScissors: "Scissors",
+    duelGameTitle: "⚔️ Rock ~ Paper ~ Scissors",
+    duelPickPrompt: "Make your pick",
+    duelWaitingText: "You picked ✅ Waiting for the other person...",
+    duelWaitingHint: "You can leave without waiting and come back later.",
+    duelBothPickedText: "Both picked... 🥁",
+    duelResultWin: "🎉 You won!",
+    duelResultLose: "😅 You lost",
+    duelResultDraw: "🤝 It's a draw",
+    duelRematch: "Play again",
+    duelExit: "Leave",
+
+    quizModalTitle: "💫 Soulmate vs Friendly",
+    quizAnsweredText: "Your answer is in",
+    quizWaitingPartner: "Waiting for the other person...",
+    quizLeaningSoulmate: "Leaning Soulmate",
+    quizLeaningFriendly: "Leaning Friendly",
+    quizResultSoulmateLabel: "💘 Soulmate",
+    quizResultFriendlyLabel: "👯 Friendly",
+
+    streakMilestoneLabel: "streak!",
+    streakMilestoneLow: "This is turning into a great conversation!",
+    streakMilestoneMid: "Now that's a real rhythm! 🔥",
+    streakMilestoneHigh: "Legendary conversation! 🏆",
+
+    replyThemLabel: "Them",
+    flaggedTooltip: "This message may contain a link or suspicious content",
+
+    messageReply: "Reply",
+    messageCopy: "Copy",
+    messageCopied: "Copied ✓",
+    messageDelete: "Delete",
+    moreEmojiLabel: "More emoji",
+    emojiPickerTitle: "Pick an emoji",
+
+    zodiacLoveLabel: "Love",
+    zodiacChatStyleLabel: "Chat style",
+    zodiacHobbyLabel: "Hobby",
+    zodiacMusicLabel: "Music taste",
+    zodiacHumorLabel: "Sense of humor",
+    zodiacActiveTimeLabel: "Active hours",
+    zodiacRedFlagLabel: "Red flag",
+    zodiacGreenFlagLabel: "Green flag",
+    zodiacNightOwl: "Night owl",
+    zodiacMorningPerson: "Morning person",
+    zodiacAverage: "In between",
+    zodiacDatingScore: "Dating score",
+    zodiacFriendshipScore: "Friendship score",
+    zodiacRelationshipScore: "Relationship score",
+    zodiacYouLabel: "You",
+    zodiacThemLabel: "Them",
+    zodiacShowMore: "Show more",
+    zodiacShowLess: "Show less",
+
+    quickReactionsLabel: "Quick reactions",
+
+    profileSetupTitle: "Introduce yourself",
+    profileSetupSubtitle:
+      "Pick a nickname and an avatar. This only lives on your device, and it's what your friends will see.",
+    nicknamePlaceholder: "Type a nickname...",
+    nicknameRandomButton: "🎲 Random name",
+    chooseAvatarLabel: "Choose your avatar",
+    profileContinueButton: "Continue",
+    editNicknameTitle: "Nickname & avatar",
+    editNicknameDesc: "Change your nickname and avatar anytime.",
+    saveButton: "Save",
+    savedToast: "Saved",
+
+    chatInboxTitle: "Chat",
+    startRandomChatCta: "Start random chat",
+    chatInboxEmpty:
+      "No conversations yet. Chat with someone random, tap 🤝 to become friends, and they'll show up here.",
+    sayHiPreview: "Say hi 👋",
+    youPrefix: "You:",
+    messagePlaceholder: "Type a message...",
+
     leave: "End conversation",
 
     reportTitle: "Report this user",
@@ -433,7 +594,7 @@ const dict = {
     settingsLanguageLabel: "Language",
     settingsPrivacyTitle: "Privacy & data",
     settingsPrivacyDesc:
-      "Chat messages are never stored on our servers — the moment a room closes, they're gone for good. The items below only ever live on this device.",
+      "Random chat messages are never stored on our servers — the moment a room closes, they're gone for good. Conversations with friends (the Chat tab) are saved like a real messenger so you can see the history later.",
     settingsBlockedTitle: "Blocked users",
     settingsBlockedEmpty: "You haven't blocked anyone.",
     settingsUnblock: "Unblock",
@@ -445,22 +606,54 @@ const dict = {
   },
 } as const;
 
-export function useLocale() {
-  const [locale, setLocaleState] = useState<Locale>("mn");
+// Module-level store so every component that calls useLocale() reads and
+// writes the same value — a plain useState per call site would let two
+// mounted instances (e.g. the sidebar's toggle and a page's own content)
+// drift out of sync, since setting one never re-renders the other.
+let currentLocale: Locale = "mn";
+let hydrated = false;
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (saved === "mn" || saved === "en") setLocaleState(saved);
-  }, []);
+function hydrate() {
+  if (hydrated || typeof window === "undefined") return;
+  hydrated = true;
+  const saved = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
+  if (saved === "mn" || saved === "en") currentLocale = saved;
+}
+
+function setGlobalLocale(next: Locale) {
+  hydrate();
+  currentLocale = next;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, next);
+  } catch {}
+  listeners.forEach((l) => l());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  hydrate();
+  return currentLocale;
+}
+
+function getServerSnapshot(): Locale {
+  return "mn";
+}
+
+export function useLocale() {
+  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    setGlobalLocale(next);
   }, []);
 
   const toggleLocale = useCallback(() => {
-    setLocale(locale === "mn" ? "en" : "mn");
-  }, [locale, setLocale]);
+    setGlobalLocale(currentLocale === "mn" ? "en" : "mn");
+  }, []);
 
   return { locale, setLocale, toggleLocale, t: dict[locale] };
 }

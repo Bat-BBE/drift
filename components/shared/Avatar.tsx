@@ -1,10 +1,11 @@
-import { getAvatar } from "@/lib/avatars";
+import { getAvatar, getAvatarByIndex } from "@/lib/avatars";
 
 type AvatarProps = {
   id: string;
   size?: number;
   minSize?: number;
   className?: string;
+  avatarIndex?: number | null;
 };
 
 export function Avatar({
@@ -12,8 +13,12 @@ export function Avatar({
   size = 32,
   minSize,
   className = "",
+  avatarIndex,
 }: AvatarProps) {
-  const a = getAvatar(id);
+  const a =
+    avatarIndex !== undefined && avatarIndex !== null
+      ? getAvatarByIndex(avatarIndex)
+      : getAvatar(id);
   const min = minSize ?? Math.round(size * 0.75);
 
   return (

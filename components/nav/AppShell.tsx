@@ -18,7 +18,7 @@ function useNavItems() {
   const { t } = useLocale();
   return [
     { href: "/", label: t.navHome, Icon: HomeIcon },
-    { href: "/match", label: t.navChat, Icon: ChatIcon },
+    { href: "/chat", label: t.navChat, Icon: ChatIcon },
     { href: "/friends", label: t.navFriends, Icon: FriendsIcon },
     { href: "/settings", label: t.navSettings, Icon: SettingsIcon },
   ] as const;

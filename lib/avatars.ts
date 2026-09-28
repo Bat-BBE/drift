@@ -1,4 +1,4 @@
-const AVATARS = [
+export const AVATARS = [
   { emoji: "🦊", name: "NPC", from: "#7c5cff", to: "#4cc9f0" },
   { emoji: "🐼", name: "AFK", from: "#ff5ca8", to: "#7c5cff" },
   { emoji: "🐨", name: "Noob", from: "#4cc9f0", to: "#34d399" },
@@ -26,4 +26,8 @@ function hashString(str: string) {
 
 export function getAvatar(id: string) {
   return AVATARS[hashString(id) % AVATARS.length];
+}
+
+export function getAvatarByIndex(index: number) {
+  return AVATARS[((index % AVATARS.length) + AVATARS.length) % AVATARS.length];
 }

@@ -7,6 +7,7 @@ import { ZODIAC_MARKER, findZodiac } from "@/lib/zodiac";
 import { DUEL_START_MARKER, DUEL_MOVE_MARKER } from "@/lib/duel";
 import { QUIZ_ANSWER_MARKER } from "@/lib/compatibility";
 import { FRIEND_REQUEST_MARKER } from "@/lib/friends";
+import { useLocale } from "@/lib/i18n";
 import type { MessageReaction } from "@/hooks/useChatSession";
 
 export interface Message {
@@ -34,33 +35,24 @@ export function ChatBubble({
   message,
   showTime,
   seen,
-  seenLabel,
   avatarId,
-  pickedLabel,
   reactions = [],
   myUserId,
   replyTo,
-  youLabel = "Та",
-  themLabel = "Тэр",
-  flaggedTooltip = "Энэ мессеж линк эсвэл сэжигтэй агуулга агуулж болзошгүй",
   onLongPress,
   onToggleReaction,
 }: {
   message: Message;
   showTime: boolean;
   seen?: boolean;
-  seenLabel?: string;
   avatarId: string;
-  pickedLabel?: string;
   reactions?: MessageReaction[];
   myUserId?: string | null;
   replyTo?: Message | null;
-  youLabel?: string;
-  themLabel?: string;
-  flaggedTooltip?: string;
   onLongPress?: () => void;
   onToggleReaction?: (emoji: string) => void;
 }) {
+  const { t } = useLocale();
   const isMe = message.from === "me";
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressMoved = useRef(false);
@@ -75,7 +67,7 @@ export function ChatBubble({
     return (
       <div className="flex justify-center px-4 py-1">
         <span className="max-w-full break-words rounded-full border border-border bg-surface2 px-3 py-1.5 text-center text-xs text-muted">
-          {sign?.emoji ?? "🔮"} {pickedLabel}{" "}
+          {sign?.emoji ?? "🔮"} {t.zodiacPicked}{" "}
           <span className="font-medium text-foreground">{name}</span>
         </span>
       </div>
@@ -144,7 +136,7 @@ export function ChatBubble({
               )}
             >
               <p className="font-medium">
-                {replyTo.from === "me" ? youLabel : themLabel}
+                {replyTo.from === "me" ? t.you : t.replyThemLabel}
               </p>
               <p className="truncate opacity-90">
                 {isHiddenGameMessage(replyTo.text) ? "🎮" : replyTo.text}
@@ -155,8 +147,8 @@ export function ChatBubble({
           <span className="align-middle">{message.text}</span>
           {message.flagged && (
             <span
-              title={flaggedTooltip}
-              aria-label={flaggedTooltip}
+              title={t.flaggedTooltip}
+              aria-label={t.flaggedTooltip}
               className={cn(
                 "ml-1.5 inline-block align-middle text-xs",
                 isMe ? "opacity-80" : "opacity-70",
@@ -201,8 +193,8 @@ export function ChatBubble({
               hour: "2-digit",
               minute: "2-digit",
             })}
-            {seen && seenLabel && (
-              <span className="text-brand-cyan">· {seenLabel} ✓✓</span>
+            {seen && (
+              <span className="text-brand-cyan">· {t.seen} ✓✓</span>
             )}
           </span>
         )}
