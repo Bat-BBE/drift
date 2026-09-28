@@ -28,6 +28,9 @@ import { StreakBadge } from "@/components/chat/StreakBadge";
 import { DuelGame } from "@/components/chat/DuelGame";
 import { CompatibilityQuiz } from "@/components/chat/CompatibilityQuiz";
 import { useStreak } from "@/hooks/useStreak";
+import { useFriends } from "@/hooks/useFriends";
+import { useRecentChats } from "@/hooks/useRecentChats";
+import { encodeFriendRequest, isFriendRequest } from "@/lib/friends";
 import {
   getLatestDuelRound,
   encodeDuelStart,
@@ -247,6 +250,17 @@ export default function MatchPage() {
   const [showQuiz, setShowQuiz] = useState(false);
   const { streak, milestone } = useStreak(messages);
   const duelRound = getLatestDuelRound(messages);
+  const { addFriend } = useFriends(userId);
+  const { addRecentChat } = useRecentChats();
+  const [showFriendAddedBanner, setShowFriendAddedBanner] = useState(false);
+
+  const myFriendRequestSent = messages.some(
+    (m) => m.from === "me" && isFriendRequest(m.text),
+  );
+  const theirFriendRequestSent = messages.some(
+    (m) => m.from === "stranger" && isFriendRequest(m.text),
+  );
+  const bothWantFriends = myFriendRequestSent && theirFriendRequestSent;
 
   const myQuizAnswers = messages.find(
     (m) => m.from === "me" && m.text.startsWith(QUIZ_ANSWER_MARKER),
@@ -297,10 +311,23 @@ export default function MatchPage() {
   const keyboardViewport = useKeyboardSafeViewport(isChatFullBleed);
 
   useEffect(() => {
-    if (!friendAddedRef.current && userId && session) {
+    if (bothWantFriends && !friendAddedRef.current && session) {
       friendAddedRef.current = true;
+      addFriend(session.partnerId);
+      setShowFriendAddedBanner(true);
+      const timer = setTimeout(() => setShowFriendAddedBanner(false), 3200);
+      return () => clearTimeout(timer);
     }
-  }, [userId, session]);
+  }, [bothWantFriends, session, addFriend]);
+
+  useEffect(() => {
+    if (
+      session &&
+      (phase === "rate" || phase === "disconnected" || phase === "reported")
+    ) {
+      addRecentChat(session.partnerId);
+    }
+  }, [phase, session, addRecentChat]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -717,6 +744,12 @@ export default function MatchPage() {
             </div>
           )}
 
+          {showFriendAddedBanner && (
+            <div className="mx-3 mb-2 animate-bubble-in rounded-2xl border border-brand/30 bg-brand/10 px-3.5 py-2.5 text-center text-xs font-medium text-foreground">
+              {t.friendAddedBanner}
+            </div>
+          )}
+
           <div className="relative border-t border-border">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-surface1 to-transparent" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-surface1 to-transparent" />
@@ -741,6 +774,18 @@ export default function MatchPage() {
                 label={t.icebreaker}
                 onClick={() => sendMessage(randomIcebreaker())}
               />
+              {!bothWantFriends &&
+                (myFriendRequestSent ? (
+                  <span className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-surface2 px-3 text-xs text-muted">
+                    🤝 {t.friendRequestSent}
+                  </span>
+                ) : (
+                  <ActionChip
+                    icon="🤝"
+                    label={t.friendChip}
+                    onClick={() => sendMessage(encodeFriendRequest())}
+                  />
+                ))}
               <span
                 className="mx-0.5 h-5 w-px shrink-0 bg-border"
                 aria-hidden

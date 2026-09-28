@@ -6,6 +6,7 @@ import { Avatar } from "@/components/shared/Avatar";
 import { ZODIAC_MARKER, findZodiac } from "@/lib/zodiac";
 import { DUEL_START_MARKER, DUEL_MOVE_MARKER } from "@/lib/duel";
 import { QUIZ_ANSWER_MARKER } from "@/lib/compatibility";
+import { FRIEND_REQUEST_MARKER } from "@/lib/friends";
 import type { MessageReaction } from "@/hooks/useChatSession";
 
 export interface Message {
@@ -22,7 +23,8 @@ export function isHiddenGameMessage(text: string): boolean {
   return (
     text.startsWith(DUEL_START_MARKER) ||
     text.startsWith(DUEL_MOVE_MARKER) ||
-    text.startsWith(QUIZ_ANSWER_MARKER)
+    text.startsWith(QUIZ_ANSWER_MARKER) ||
+    text.startsWith(FRIEND_REQUEST_MARKER)
   );
 }
 

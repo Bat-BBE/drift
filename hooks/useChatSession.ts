@@ -10,21 +10,25 @@ export interface MessageReaction {
   userIds: string[];
 }
 
+// Chat content never touches the database — messages, edits and reactions
+// are exchanged purely as Supabase Realtime broadcast events on the
+// session's channel and kept only in each client's memory. Closing the
+// room (leaving, matching again, closing the tab) throws all of it away
+// for good; there is nothing server-side to purge.
+const MAX_MESSAGE_LENGTH = 2000;
+const RATE_LIMIT_WINDOW_MS = 3000;
+const RATE_LIMIT_MAX = 6;
+const LINK_PATTERN = /(https?:\/\/|www\.)\S+/i;
+
 function aggregateReactions(
-  rows: { message_id: string; user_id: string; emoji: string }[],
+  byMessage: Record<string, Record<string, Set<string>>>,
 ): Record<string, MessageReaction[]> {
-  const byMessage: Record<string, Record<string, string[]>> = {};
-  for (const row of rows) {
-    byMessage[row.message_id] ??= {};
-    byMessage[row.message_id][row.emoji] ??= [];
-    byMessage[row.message_id][row.emoji].push(row.user_id);
-  }
   const result: Record<string, MessageReaction[]> = {};
   for (const [messageId, byEmoji] of Object.entries(byMessage)) {
-    result[messageId] = Object.entries(byEmoji).map(([emoji, userIds]) => ({
-      emoji,
-      userIds,
-    }));
+    const list = Object.entries(byEmoji)
+      .filter(([, userIds]) => userIds.size > 0)
+      .map(([emoji, userIds]) => ({ emoji, userIds: Array.from(userIds) }));
+    if (list.length > 0) result[messageId] = list;
   }
   return result;
 }
@@ -44,107 +48,66 @@ export function useChatSession(
   const [messageError, setMessageError] = useState<string | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reactionState = useRef<Record<string, Record<string, Set<string>>>>(
+    {},
+  );
+  const sentTimestamps = useRef<number[]>([]);
+
+  // Fresh room, empty transcript — nothing is ever loaded from storage.
+  useEffect(() => {
+    setMessages([]);
+    setReactions({});
+    reactionState.current = {};
+    setPartnerTyping(false);
+    setPartnerDisconnected(false);
+    setPartnerLastReadAt(0);
+    sentTimestamps.current = [];
+  }, [sessionId]);
 
   useEffect(() => {
     if (!sessionId || !userId) return;
     const sid = sessionId;
     const uid = userId;
-    let cancelled = false;
-
-    async function init() {
-      const { data } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("session_id", sid)
-        .order("sent_at", { ascending: true });
-
-      if (!cancelled && data) {
-        setMessages(
-          data.map((m) => ({
-            id: m.id,
-            from: m.sender_id === uid ? "me" : "stranger",
-            text: m.content,
-            sentAt: new Date(m.sent_at).getTime(),
-            flagged: m.flagged,
-            flagReason: m.flag_reason as "keyword" | "link" | null,
-            replyToId: m.reply_to_id as string | null,
-          })),
-        );
-      }
-
-      const { data: reactionRows } = await supabase
-        .from("message_reactions")
-        .select("message_id, user_id, emoji")
-        .eq("session_id", sid);
-
-      if (!cancelled && reactionRows) {
-        setReactions(aggregateReactions(reactionRows));
-      }
-    }
-    init();
 
     const channel = supabase
       .channel(`session:${sid}`, {
         config: { private: true, presence: { key: uid } },
       })
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `session_id=eq.${sid}`,
-        },
-        (payload) => {
-          const m = payload.new as any;
-          setMessages((prev) => {
-            if (prev.some((existing) => existing.id === m.id)) return prev;
-            return [
-              ...prev,
-              {
-                id: m.id,
-                from: m.sender_id === uid ? "me" : "stranger",
-                text: m.content,
-                sentAt: new Date(m.sent_at).getTime(),
-                flagged: m.flagged,
-                flagReason: m.flag_reason as "keyword" | "link" | null,
-                replyToId: m.reply_to_id as string | null,
-              },
-            ];
-          });
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "messages",
-          filter: `session_id=eq.${sid}`,
-        },
-        (payload) => {
-          const old = payload.old as any;
-          setMessages((prev) => prev.filter((m) => m.id !== old.id));
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "message_reactions",
-          filter: `session_id=eq.${sid}`,
-        },
-        async () => {
-          const { data: reactionRows } = await supabase
-            .from("message_reactions")
-            .select("message_id, user_id, emoji")
-            .eq("session_id", sid);
-          if (!cancelled && reactionRows) {
-            setReactions(aggregateReactions(reactionRows));
-          }
-        },
-      )
+      .on("broadcast", { event: "message" }, (payload) => {
+        const m = payload.payload as Message & { senderId: string };
+        if (m.senderId === uid) return;
+        setMessages((prev) =>
+          prev.some((existing) => existing.id === m.id)
+            ? prev
+            : [...prev, { ...m, from: "stranger" }],
+        );
+      })
+      .on("broadcast", { event: "delete-message" }, (payload) => {
+        const { messageId, senderId } = payload.payload as {
+          messageId: string;
+          senderId: string;
+        };
+        if (senderId === uid) return;
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      })
+      .on("broadcast", { event: "reaction" }, (payload) => {
+        const { messageId, userId: fromUser, emoji, action } =
+          payload.payload as {
+            messageId: string;
+            userId: string;
+            emoji: string;
+            action: "add" | "remove";
+          };
+        if (fromUser === uid) return;
+        reactionState.current[messageId] ??= {};
+        reactionState.current[messageId][emoji] ??= new Set();
+        if (action === "add") {
+          reactionState.current[messageId][emoji].add(fromUser);
+        } else {
+          reactionState.current[messageId][emoji].delete(fromUser);
+        }
+        setReactions(aggregateReactions(reactionState.current));
+      })
       .on(
         "postgres_changes",
         {
@@ -189,7 +152,6 @@ export function useChatSession(
     channelRef.current = channel;
 
     return () => {
-      cancelled = true;
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
@@ -206,59 +168,97 @@ export function useChatSession(
 
   const sendMessage = useCallback(
     async (content: string, replyToId?: string | null) => {
-      if (!sessionId || !userId || !content.trim()) return;
-      const { error } = await supabase.from("messages").insert({
-        session_id: sessionId,
-        sender_id: userId,
-        content: content.trim(),
-        reply_to_id: replyToId ?? null,
-      });
-      if (error) {
-        if (error.message.includes("rate_limited")) {
-          setMessageError("rate_limited");
-          setTimeout(() => setMessageError(null), 2500);
-        } else if (error.message.includes("message_blocked")) {
-          setMessageError("blocked");
-          setTimeout(() => setMessageError(null), 2500);
-        } else {
-          console.error("[drift] failed to send message:", error.message);
-        }
+      const trimmed = content.trim();
+      if (!sessionId || !userId || !channelRef.current || !trimmed) return;
+
+      if (trimmed.length > MAX_MESSAGE_LENGTH) return;
+
+      const now = Date.now();
+      sentTimestamps.current = sentTimestamps.current.filter(
+        (t) => now - t < RATE_LIMIT_WINDOW_MS,
+      );
+      if (sentTimestamps.current.length >= RATE_LIMIT_MAX) {
+        setMessageError("rate_limited");
+        setTimeout(() => setMessageError(null), 2500);
+        return;
       }
+      sentTimestamps.current.push(now);
+
+      const flagged = LINK_PATTERN.test(trimmed);
+      const message: Message = {
+        id: crypto.randomUUID(),
+        from: "me",
+        text: trimmed,
+        sentAt: now,
+        flagged,
+        flagReason: flagged ? "link" : null,
+        replyToId: replyToId ?? null,
+      };
+
+      setMessages((prev) => [...prev, message]);
+      await channelRef.current.send({
+        type: "broadcast",
+        event: "message",
+        payload: { ...message, senderId: userId },
+      });
     },
     [sessionId, userId],
   );
 
-  const deleteMessage = useCallback(async (messageId: string) => {
-    setMessages((prev) => prev.filter((m) => m.id !== messageId));
-    await supabase.from("messages").delete().eq("id", messageId);
-  }, []);
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      await channelRef.current?.send({
+        type: "broadcast",
+        event: "delete-message",
+        payload: { messageId, senderId: userId },
+      });
+    },
+    [userId],
+  );
 
   const toggleReaction = useCallback(
     async (messageId: string, emoji: string) => {
-      if (!sessionId || !userId) return;
+      if (!userId || !channelRef.current) return;
       const mine = reactions[messageId]?.find((r) =>
         r.userIds.includes(userId),
       );
+      const action: "add" | "remove" =
+        mine && mine.emoji === emoji ? "remove" : "add";
 
-      if (mine && mine.emoji === emoji) {
-        await supabase
-          .from("message_reactions")
-          .delete()
-          .eq("message_id", messageId)
-          .eq("user_id", userId);
-      } else {
-        await supabase.from("message_reactions").upsert(
-          {
-            message_id: messageId,
-            session_id: sessionId,
-            user_id: userId,
-            emoji,
+      // If I already had a different reaction on this message, clear it first.
+      if (mine && mine.emoji !== emoji) {
+        reactionState.current[messageId] ??= {};
+        reactionState.current[messageId][mine.emoji] ??= new Set();
+        reactionState.current[messageId][mine.emoji].delete(userId);
+        await channelRef.current.send({
+          type: "broadcast",
+          event: "reaction",
+          payload: {
+            messageId,
+            userId,
+            emoji: mine.emoji,
+            action: "remove",
           },
-          { onConflict: "message_id,user_id" },
-        );
+        });
       }
+
+      reactionState.current[messageId] ??= {};
+      reactionState.current[messageId][emoji] ??= new Set();
+      if (action === "add") {
+        reactionState.current[messageId][emoji].add(userId);
+      } else {
+        reactionState.current[messageId][emoji].delete(userId);
+      }
+      setReactions(aggregateReactions(reactionState.current));
+
+      await channelRef.current.send({
+        type: "broadcast",
+        event: "reaction",
+        payload: { messageId, userId, emoji, action },
+      });
     },
-    [sessionId, userId, reactions],
+    [userId, reactions],
   );
 
   const notifyTyping = useCallback(() => {

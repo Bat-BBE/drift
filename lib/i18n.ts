@@ -9,6 +9,7 @@ const STORAGE_KEY = "drift-locale";
 const dict = {
   mn: {
     onlineConnecting: "Онлайн хэрэглэгчдийн мэдээллийг авч байна...",
+    loading: "Ачааллаж байна...",
 
     onlineCount: (n: number) => `Яг одоо ${n} хүн ярилцахад бэлэн байна`,
 
@@ -169,10 +170,59 @@ const dict = {
     nextMatch: "Өөр хүнтэй ярилцах",
 
     backHome: "← Нүүр хуудас",
+
+    navHome: "Нүүр",
+    navChat: "Чат",
+    navFriends: "Найзууд",
+    navSettings: "Тохиргоо",
+
+    featureFastTitle: "Хурдан тохирол",
+    featureFastDesc: "Хэдхэн секундэд холбогдоно",
+    featureSafeTitle: "Аюулгүй, нууцлалтай",
+    featureSafeDesc: "Хувийн мэдээлэл шаардахгүй",
+    featureGlobalTitle: "Дэлхий даяар",
+    featureGlobalDesc: "Хаана ч байгаа хүмүүстэй ярилц",
+    featureFunTitle: "Хялбар, хөгжилтэй",
+    featureFunDesc: "Нээгээд шууд ярилцаарай",
+
+    guestLabel: "Зочин",
+    availableStatus: "Идэвхтэй",
+
+    onlineUsersTitle: "Онлайн хэрэглэгчид",
+    quickTipsTitle: "Зөвлөмжүүд",
+    recentChatsTitle: "Сүүлийн ярилцлагууд",
+    recentChatsEmpty:
+      "Одоохондоо ярилцлага алга. Мессежийн агуулгыг бид хадгалдаггүй тул зөвхөн ярилцсан хүн, цаг энд харагдана.",
+    recentChatEndedLabel: "Ярилцлага дууссан",
+
+    friendsSubtitle:
+      "Ярилцаж байхдаа 🤝 дарж хоёулаа зөвшөөрвөл энд гарч ирнэ. Бид нэр, мессежийг хадгалдаггүй тул зөвхөн зочны дүр харагдана.",
+    friendRequestSent: "Хүсэлт илгээсэн, хариу хүлээж байна...",
+    friendChip: "🤝 Найз болох",
+
+    settingsTitle: "Тохиргоо",
+    settingsAppearanceTitle: "Харагдац",
+    settingsAppearanceDesc: "Гэрэл/харанхуй горим болон хэлийг сонгоно уу.",
+    settingsThemeLabel: "Дэлгэцийн горим",
+    settingsThemeDark: "Харанхуй",
+    settingsThemeLight: "Гэрэл",
+    settingsLanguageLabel: "Хэл",
+    settingsPrivacyTitle: "Нууцлал ба өгөгдөл",
+    settingsPrivacyDesc:
+      "Ярианы мессежийг сервер дээр хэзээ ч хадгалдаггүй — room хаагдмагц бүрмөсөн устана. Доорх мэдээлэл зөвхөн энэ төхөөрөмж дээр л хадгалагдана.",
+    settingsBlockedTitle: "Блоклосон хэрэглэгчид",
+    settingsBlockedEmpty: "Та хэн ч блоклоогүй байна.",
+    settingsUnblock: "Блок цуцлах",
+    settingsClearRecentTitle: "Сүүлийн ярилцлагын түүх",
+    settingsClearRecentDesc:
+      "Энэ төхөөрөмж дээрх ярилцсан хүмүүсийн жагсаалтыг устгана. Мессежийн агуулга хадгалагддаггүй тул устгах зүйл байхгүй.",
+    settingsClearRecentButton: "Түүх устгах",
+    settingsClearedToast: "Устгагдлаа",
   },
 
   en: {
     onlineConnecting: "Checking who's online...",
+    loading: "Loading...",
 
     onlineCount: (n: number) => `${n} people are ready to chat`,
 
@@ -344,6 +394,54 @@ const dict = {
     nextMatch: "Start another conversation",
 
     backHome: "← Back to home",
+
+    navHome: "Home",
+    navChat: "Chat",
+    navFriends: "Friends",
+    navSettings: "Settings",
+
+    featureFastTitle: "Fast Match",
+    featureFastDesc: "Get connected in seconds",
+    featureSafeTitle: "Safe & Private",
+    featureSafeDesc: "No personal data required",
+    featureGlobalTitle: "Global",
+    featureGlobalDesc: "Chat with people worldwide",
+    featureFunTitle: "Fun & Simple",
+    featureFunDesc: "Just open and chat",
+
+    guestLabel: "Guest",
+    availableStatus: "Available",
+
+    onlineUsersTitle: "Online Users",
+    quickTipsTitle: "Quick Tips",
+    recentChatsTitle: "Recent Chats",
+    recentChatsEmpty:
+      "No conversations yet. We never store what was said, so only who you talked to and when will show up here.",
+    recentChatEndedLabel: "Conversation ended",
+
+    friendsSubtitle:
+      "Tap 🤝 during a chat — if you both do, they'll show up here. We don't store names or messages, so you'll only see a guest avatar.",
+    friendRequestSent: "Request sent, waiting for a reply...",
+    friendChip: "🤝 Become friends",
+
+    settingsTitle: "Settings",
+    settingsAppearanceTitle: "Appearance",
+    settingsAppearanceDesc: "Choose your theme and language.",
+    settingsThemeLabel: "Theme",
+    settingsThemeDark: "Dark",
+    settingsThemeLight: "Light",
+    settingsLanguageLabel: "Language",
+    settingsPrivacyTitle: "Privacy & data",
+    settingsPrivacyDesc:
+      "Chat messages are never stored on our servers — the moment a room closes, they're gone for good. The items below only ever live on this device.",
+    settingsBlockedTitle: "Blocked users",
+    settingsBlockedEmpty: "You haven't blocked anyone.",
+    settingsUnblock: "Unblock",
+    settingsClearRecentTitle: "Recent chats history",
+    settingsClearRecentDesc:
+      "Clears the local list of people you've talked to on this device. Message content is never stored, so there's nothing else to delete.",
+    settingsClearRecentButton: "Clear history",
+    settingsClearedToast: "Cleared",
   },
 } as const;
 

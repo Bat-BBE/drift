@@ -40,21 +40,6 @@ export interface Database {
         Insert: Partial<Database["public"]["Tables"]["match_sessions"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["match_sessions"]["Row"]>;
       };
-      messages: {
-        Row: {
-          id: string;
-          session_id: string;
-          sender_id: string;
-          content: string;
-          sent_at: string;
-        };
-        Insert: Partial<Database["public"]["Tables"]["messages"]["Row"]> & {
-          session_id: string;
-          sender_id: string;
-          content: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["messages"]["Row"]>;
-      };
       reports: {
         Row: {
           id: string;
