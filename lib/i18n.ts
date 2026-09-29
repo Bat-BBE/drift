@@ -291,7 +291,7 @@ const dict = {
     settingsLanguageLabel: "Хэл",
     settingsPrivacyTitle: "Нууцлал ба өгөгдөл",
     settingsPrivacyDesc:
-      "Random chat-ын мессежийг сервер дээр хэзээ ч хадгалдаггүй — room хаагдмагц бүрмөсөн устана. Харин найзуудтайгаа бичсэн чат (Chat таб) жинхэнэ мессенжер шиг хадгалагдаж, дараа нь харагдана.",
+      "Random chat-ын мессежийг сервер дээр хэзээ ч хадгалдаггүй — room хаагдмагц бүрмөсөн устана. Найзуудтайгаа бичсэн чат (Chat таб) 3 хоногийн турш хадгалагдаад, дараа нь автоматаар устдаг.",
     settingsBlockedTitle: "Блоклосон хэрэглэгчид",
     settingsBlockedEmpty: "Та хэн ч блоклоогүй байна.",
     settingsUnblock: "Блок цуцлах",
@@ -597,7 +597,7 @@ const dict = {
     settingsLanguageLabel: "Language",
     settingsPrivacyTitle: "Privacy & data",
     settingsPrivacyDesc:
-      "Random chat messages are never stored on our servers — the moment a room closes, they're gone for good. Conversations with friends (the Chat tab) are saved like a real messenger so you can see the history later.",
+      "Random chat messages are never stored on our servers — the moment a room closes, they're gone for good. Conversations with friends (the Chat tab) are kept for 3 days, then deleted automatically.",
     settingsBlockedTitle: "Blocked users",
     settingsBlockedEmpty: "You haven't blocked anyone.",
     settingsUnblock: "Unblock",
